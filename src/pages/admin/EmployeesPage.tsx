@@ -658,12 +658,12 @@ const EmployeesPage = () => {
       {/* Table */}
       <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[380px]">
+          <table className="w-full text-sm min-w-[640px]">
             <thead>
               <tr className="bg-gray-50 dark:bg-gray-800/60 border-b border-gray-200 dark:border-gray-800">
                 {["Pegawai & NIP", "Posisi", "Departemen", "Role", "Status Akun", "Cuti Sisa", "Aksi"].map(h => (
-                  <th key={h} className={`py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide ${
-                    h === "Aksi" ? "text-right px-2 w-[90px]" : "text-left px-4"
+                  <th key={h} className={`px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide ${
+                    h === "Aksi" ? "text-right" : "text-left"
                   } ${
                     h === "Posisi" || h === "Cuti Sisa" ? "hidden md:table-cell" : ""
                   } ${
@@ -731,8 +731,8 @@ const EmployeesPage = () => {
                       <span className="text-xs text-gray-400">/ {emp.annualLeaveQuota}</span>
                     </div>
                   </td>
-                  <td className="px-2 py-3">
-                    <div className="flex items-center justify-end gap-0.5">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center justify-end gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                       <button onClick={() => openEdit(emp)} title="Edit"
                         className="p-1.5 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
                         <Pencil className="h-3.5 w-3.5" />
