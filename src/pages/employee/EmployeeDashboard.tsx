@@ -143,7 +143,7 @@ export const EmployeeDashboard = () => {
       )}
 
       {/* ── Bento Grid Template Layout ── */}
-      <BentoGrid className="lg:grid-rows-3 auto-rows-[20rem]">
+      <BentoGrid className="lg:grid-rows-3 auto-rows-auto md:auto-rows-[20rem]">
         {/* 1. Presensi Live GPS & Selfie (Hero Card) */}
         <BentoCard
           name={`Presensi Dinas: ${todayShift.name}`}

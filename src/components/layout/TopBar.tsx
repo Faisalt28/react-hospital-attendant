@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
-import { Bell, Moon, Sun, User, ChevronDown, LogOut, Settings, CheckCheck } from "lucide-react"
+import { Bell, Moon, Sun, User, ChevronDown, LogOut, Settings, CheckCheck, Menu } from "lucide-react"
 import { useTheme } from "@/contexts/ThemeContext"
 import { useLocalStorage } from "@/hooks/useLocalStorage"
 import { SEED_EMPLOYEES, SEED_LEAVES, SEED_SWAPS } from "@/data/seed"
@@ -9,7 +9,11 @@ import type { LeaveRequest, ShiftSwapRequest } from "@/types"
 
 // ─── TopBar ───────────────────────────────────────────────────────────────────
 
-const TopBar = () => {
+interface TopBarProps {
+  onMenuClick?: () => void
+}
+
+const TopBar = ({ onMenuClick }: TopBarProps) => {
   const navigate = useNavigate()
   const { isDark, toggleDark } = useTheme()
   const [showNotifs, setShowNotifs] = useState(false)
@@ -113,12 +117,24 @@ const TopBar = () => {
     POSISI_OPTIONS.find((p) => p.value === currentEmp?.posisi)?.label || roleLabel
 
   return (
-    <header className="h-16 shrink-0 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex items-center justify-between px-6 shadow-xs z-10">
-      {/* Left: Date context */}
-      <div className="flex items-center gap-2">
-        <p className="text-xs text-gray-400 dark:text-gray-500">
+    <header className="h-16 shrink-0 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex items-center justify-between px-3 sm:px-6 shadow-xs z-10">
+      {/* Left: Hamburger (mobile) + Date / Title */}
+      <div className="flex items-center gap-2.5 sm:gap-3">
+        {onMenuClick && (
+          <button
+            onClick={onMenuClick}
+            className="md:hidden flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+            title="Buka Menu"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+        )}
+        <p className="hidden sm:block text-xs text-gray-400 dark:text-gray-500">
           {new Date().toLocaleDateString("id-ID", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
         </p>
+        <span className="sm:hidden text-xs font-bold text-gray-800 dark:text-gray-200">
+          Admin HRD
+        </span>
       </div>
 
       {/* Right: Actions */}

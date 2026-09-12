@@ -207,44 +207,44 @@ const AdminDashboard = () => {
   const getPosisiLabel = (v: string) => POSISI_OPTIONS.find((o) => o.value === v)?.label ?? v
 
   return (
-    <div className="p-6 space-y-6 max-w-screen-2xl mx-auto">
+    <div className="p-3 sm:p-6 space-y-4 sm:space-y-6 max-w-screen-2xl mx-auto">
       {/* ── Page Header ── */}
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 truncate">
             Selamat datang, {currentEmp?.name || "Admin"} 👋
           </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{today}</p>
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5">{today}</p>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+        <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 shrink-0">
           <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-xs font-medium text-green-700 dark:text-green-400">Sistem Aktif</span>
+          <span className="text-[11px] sm:text-xs font-medium text-green-700 dark:text-green-400">Sistem Aktif</span>
         </div>
       </div>
 
       {/* ── KPI Cards ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {stats.map((stat) => (
           <div
             key={stat.title}
-            className="p-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-default"
+            className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xs hover:shadow-md transition-shadow duration-200 cursor-default"
           >
-            <div className="flex items-center justify-between mb-4">
-              <div className={`p-2.5 rounded-xl ${stat.iconBg}`}>
-                <stat.icon className={`h-5 w-5 ${stat.iconColor}`} />
+            <div className="flex items-center justify-between mb-2 sm:mb-4">
+              <div className={`p-2 sm:p-2.5 rounded-xl ${stat.iconBg}`}>
+                <stat.icon className={`h-4 w-4 sm:h-5 sm:w-5 ${stat.iconColor}`} />
               </div>
               {stat.up ? (
-                <TrendingUp className="h-4 w-4 text-green-500" />
+                <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-green-500" />
               ) : (
-                <TrendingDown className="h-4 w-4 text-red-400" />
+                <TrendingDown className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-red-400" />
               )}
             </div>
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{stat.title}</p>
-            <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{stat.value}</p>
-            <p className={`text-xs mt-1.5 font-medium ${stat.up ? "text-green-600 dark:text-green-400" : "text-orange-500 dark:text-orange-400"}`}>
+            <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 mb-0.5 sm:mb-1 truncate">{stat.title}</p>
+            <p className="text-xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">{stat.value}</p>
+            <p className={`text-[10px] sm:text-xs mt-1 sm:mt-1.5 font-medium truncate ${stat.up ? "text-green-600 dark:text-green-400" : "text-orange-500 dark:text-orange-400"}`}>
               {stat.trend}
             </p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{stat.subtitle}</p>
+            <p className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate hidden sm:block">{stat.subtitle}</p>
           </div>
         ))}
       </div>
@@ -382,7 +382,7 @@ const AdminDashboard = () => {
             </button>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[500px]">
               <thead>
                 <tr className="bg-gray-50 dark:bg-gray-800/50">
                   {["Pegawai", "Tipe", "Tanggal", "Status", "Aksi"].map((h) => (

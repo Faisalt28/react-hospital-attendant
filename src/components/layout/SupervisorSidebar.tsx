@@ -28,14 +28,25 @@ interface OptionProps {
   notifs?: number
 }
 
-const NavOption = ({ icon: Icon, title, path, open, notifs }: OptionProps) => {
+interface NavOptionProps extends OptionProps {
+  onMobileClose?: () => void
+}
+
+const NavOption = ({ icon: Icon, title, path, open, notifs, onMobileClose }: NavOptionProps) => {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const isSelected = pathname === path
 
+  const handleClick = () => {
+    navigate(path)
+    if (onMobileClose) {
+      onMobileClose()
+    }
+  }
+
   return (
     <button
-      onClick={() => navigate(path)}
+      onClick={handleClick}
       title={!open ? title : undefined}
       className={`relative flex h-11 w-full items-center rounded-2xl transition-all duration-200 group cursor-pointer
         ${
@@ -74,7 +85,12 @@ const NavOption = ({ icon: Icon, title, path, open, notifs }: OptionProps) => {
   )
 }
 
-export const SupervisorSidebar = () => {
+interface SupervisorSidebarProps {
+  mobileOpen?: boolean
+  onMobileClose?: () => void
+}
+
+export const SupervisorSidebar = ({ mobileOpen = false, onMobileClose }: SupervisorSidebarProps) => {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const [open, setOpen] = useState(true)
@@ -140,57 +156,71 @@ export const SupervisorSidebar = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("user")
+    if (onMobileClose) onMobileClose()
     navigate("/login")
   }
 
-  return (
-    <nav
-      className={`sticky top-0 h-screen shrink-0 border-r transition-all duration-300 ease-in-out flex flex-col z-30
-        ${open ? "w-64" : "w-18"}
-        border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-3 shadow-xs`}
-    >
+  const renderContent = (isMobileView: boolean) => (
+    <>
       {/* Title & Brand */}
       <div className="mb-4 border-b border-gray-100 dark:border-gray-800 pb-3">
-        <div className="flex items-center gap-3 p-1">
-          <div className="size-10 shrink-0 rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-700 flex items-center justify-center text-white shadow-md shadow-indigo-200 dark:shadow-none">
-            <Hospital className="h-5 w-5" />
+        <div className="flex items-center justify-between p-1">
+          <div className="flex items-center gap-3">
+            <div className="size-10 shrink-0 rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-700 flex items-center justify-center text-white shadow-md shadow-indigo-200 dark:shadow-none">
+              <Hospital className="h-5 w-5" />
+            </div>
+
+            {(isMobileView || open) && (
+              <div className="overflow-hidden">
+                <span className="block text-sm font-bold text-gray-900 dark:text-gray-100 leading-tight">
+                  RS MediTrack
+                </span>
+                <span className="block text-xs text-indigo-600 dark:text-indigo-400 font-semibold">
+                  Kepala Ruangan
+                </span>
+              </div>
+            )}
           </div>
 
-          {open && (
-            <div className="overflow-hidden">
-              <span className="block text-sm font-bold text-gray-900 dark:text-gray-100 leading-tight">
-                RS MediTrack
-              </span>
-              <span className="block text-xs text-indigo-600 dark:text-indigo-400 font-semibold">
-                Kepala Ruangan
-              </span>
-            </div>
+          {isMobileView && onMobileClose && (
+            <button
+              onClick={onMobileClose}
+              className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+              title="Tutup Menu"
+            >
+              <ChevronsRight className="h-5 w-5 rotate-180" />
+            </button>
           )}
         </div>
       </div>
 
       {/* Nav List */}
       <div className="space-y-1 flex-1 overflow-y-auto overflow-x-hidden pb-16">
-        {open && (
+        {(isMobileView || open) && (
           <p className="px-3 py-1.5 text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
             Operasional Unit
           </p>
         )}
         {navItems.map((item) => (
-          <NavOption key={item.path} {...item} open={open} />
+          <NavOption
+            key={item.path}
+            {...item}
+            open={isMobileView ? true : open}
+            onMobileClose={isMobileView ? onMobileClose : undefined}
+          />
         ))}
 
         <div className="border-t border-gray-100 dark:border-gray-800 my-3 pt-3">
           <button
             onClick={handleLogout}
-            title={!open ? "Keluar" : undefined}
+            title={!isMobileView && !open ? "Keluar" : undefined}
             className="relative flex h-11 w-full items-center rounded-2xl transition-all duration-200 group cursor-pointer text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600"
           >
             <div className="grid h-full w-12 place-content-center shrink-0">
               <LogOut className="h-4.5 w-4.5" />
             </div>
-            {open && <span className="text-sm font-medium">Keluar Akun</span>}
-            {!open && (
+            {(isMobileView || open) && <span className="text-sm font-medium">Keluar Akun</span>}
+            {!isMobileView && !open && (
               <div className="absolute left-full ml-2 px-2.5 py-1 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-150 whitespace-nowrap z-50">
                 Keluar
               </div>
@@ -199,16 +229,44 @@ export const SupervisorSidebar = () => {
         </div>
       </div>
 
-      {/* Collapse Toggle */}
-      <button
-        onClick={() => setOpen(!open)}
-        className="border-t border-gray-100 dark:border-gray-800 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 flex items-center justify-center rounded-xl transition-colors cursor-pointer"
+      {/* Collapse Toggle (Desktop only) */}
+      {!isMobileView && (
+        <button
+          onClick={() => setOpen(!open)}
+          className="border-t border-gray-100 dark:border-gray-800 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 flex items-center justify-center rounded-xl transition-colors cursor-pointer"
+        >
+          <ChevronsRight
+            className={`h-4 w-4 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
+          />
+          {open && <span className="text-xs font-medium ml-2">Ciutkan Menu</span>}
+        </button>
+      )}
+    </>
+  )
+
+  return (
+    <>
+      {/* Desktop Sidebar */}
+      <nav
+        className={`hidden md:flex sticky top-0 h-screen shrink-0 border-r transition-all duration-300 ease-in-out flex-col z-30
+          ${open ? "w-64" : "w-18"}
+          border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-3 shadow-xs`}
       >
-        <ChevronsRight
-          className={`h-4 w-4 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
-        />
-        {open && <span className="text-xs font-medium ml-2">Ciutkan Menu</span>}
-      </button>
-    </nav>
+        {renderContent(false)}
+      </nav>
+
+      {/* Mobile Drawer Overlay */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+            onClick={onMobileClose}
+          />
+          <nav className="fixed inset-y-0 left-0 w-72 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 p-3 shadow-2xl flex flex-col z-10 animate-in slide-in-from-left duration-200">
+            {renderContent(true)}
+          </nav>
+        </div>
+      )}
+    </>
   )
 }

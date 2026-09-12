@@ -249,44 +249,44 @@ export const AttendanceModal = ({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-xs" onClick={onClose} />
 
-      <div className="relative bg-white dark:bg-gray-900 rounded-3xl shadow-2xl w-full max-w-lg border border-gray-200 dark:border-gray-800 overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="relative bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-lg border border-gray-200 dark:border-gray-800 overflow-hidden flex flex-col max-h-[96vh] sm:max-h-[92vh]">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800 shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className={`p-2 rounded-xl ${type === "clock-in" ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600" : "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600"}`}>
-              <Clock className="h-5 w-5" />
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-gray-800 shrink-0">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className={`p-2 rounded-xl shrink-0 ${type === "clock-in" ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600" : "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600"}`}>
+              <Clock className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
             </div>
-            <div>
-              <h2 className="text-base font-bold text-gray-900 dark:text-gray-100">
+            <div className="min-w-0">
+              <h2 className="text-sm sm:text-base font-bold text-gray-900 dark:text-gray-100 truncate">
                 {type === "clock-in" ? "Presensi Masuk (Clock-In)" : "Presensi Pulang (Clock-Out)"}
               </h2>
-              <p className="text-xs text-gray-400">
-                {shiftName} ({shiftStartTime}) · Waktu: <strong className="text-gray-700 dark:text-gray-300">{nowTime}</strong>
+              <p className="text-[11px] sm:text-xs text-gray-400 truncate">
+                {shiftName} ({shiftStartTime}) · <strong className="text-gray-700 dark:text-gray-300">{nowTime}</strong>
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-600 transition-colors"
+            className="p-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-600 transition-colors shrink-0"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Content Body */}
-        <div className="p-6 overflow-y-auto space-y-5 flex-1">
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-3.5 sm:space-y-5 flex-1">
           {submitSuccess ? (
-            <div className="py-8 text-center space-y-3">
-              <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400 flex items-center justify-center mx-auto animate-bounce">
-                <CheckCircle2 className="h-10 w-10" />
+            <div className="py-6 sm:py-8 text-center space-y-3">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400 flex items-center justify-center mx-auto animate-bounce">
+                <CheckCircle2 className="h-8 w-8 sm:h-10 sm:w-10" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100">
                 Presensi Berhasil Dicatat!
               </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                 {type === "clock-in" ? "Selamat bertugas! Data presensi masuk telah tersimpan." : "Terima kasih atas dedikasi Anda hari ini! Data presensi pulang telah dicatat."}
               </p>
             </div>
@@ -297,7 +297,7 @@ export const AttendanceModal = ({
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
                     <Camera className="h-3.5 w-3.5 text-blue-500" />
-                    Foto Selfie Presensi {settings.requireSelfie ? "(Wajib)" : "(Opsional)"}
+                    Foto Selfie {settings.requireSelfie ? "(Wajib)" : "(Opsional)"}
                   </label>
                   {photo && (
                     <button
@@ -305,12 +305,12 @@ export const AttendanceModal = ({
                       onClick={handleRetake}
                       className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
                     >
-                      <RefreshCw className="h-3 w-3" /> Ambil Ulang Foto
+                      <RefreshCw className="h-3 w-3" /> Ambil Ulang
                     </button>
                   )}
                 </div>
 
-                <div className="relative aspect-[4/3] w-full bg-gray-900 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 flex items-center justify-center shadow-inner">
+                <div className="relative aspect-[4/3] max-h-[220px] sm:max-h-[280px] w-full bg-gray-900 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 flex items-center justify-center shadow-inner mx-auto">
                   {photo ? (
                     <img src={photo} alt="Selfie Presensi" className="w-full h-full object-cover" />
                   ) : (
@@ -360,28 +360,28 @@ export const AttendanceModal = ({
               </div>
 
               {/* Geolocation Verification Card */}
-              <div className="p-4 rounded-2xl bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 space-y-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className={`p-1.5 rounded-lg ${isInsideGeofence ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400"}`}>
+              <div className="p-3 sm:p-4 rounded-2xl bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 space-y-2.5 sm:space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className={`p-1.5 rounded-lg shrink-0 ${isInsideGeofence ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400"}`}>
                       <MapPin className="h-4 w-4" />
                     </div>
-                    <div>
-                      <p className="text-xs font-semibold text-gray-900 dark:text-gray-100">
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold text-gray-900 dark:text-gray-100 truncate">
                         {settings.hospitalName}
                       </p>
-                      <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                      <p className="text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-400 truncate">
                         Maksimal radius: <strong>{settings.geofenceRadiusMeters} m</strong>
                       </p>
                     </div>
                   </div>
 
                   {gpsLoading ? (
-                    <span className="text-xs text-gray-400 flex items-center gap-1">
+                    <span className="text-[11px] text-gray-400 flex items-center gap-1 shrink-0">
                       <RefreshCw className="h-3 w-3 animate-spin" /> Cek GPS...
                     </span>
                   ) : distance !== null ? (
-                    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${isInsideGeofence ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400"}`}>
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-semibold shrink-0 ${isInsideGeofence ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400"}`}>
                       {isInsideGeofence ? <ShieldCheck className="h-3.5 w-3.5" /> : <ShieldAlert className="h-3.5 w-3.5" />}
                       {formatDistance(distance)} ({isInsideGeofence ? "Dalam Area" : "Luar Radius"})
                     </span>
@@ -405,11 +405,11 @@ export const AttendanceModal = ({
 
         {/* Footer Actions */}
         {!submitSuccess && (
-          <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex gap-3 shrink-0">
+          <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex gap-2.5 sm:gap-3 shrink-0">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-xl transition-colors"
+              className="flex-1 py-2.5 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-xl transition-colors"
             >
               Batal
             </button>
@@ -417,7 +417,7 @@ export const AttendanceModal = ({
               type="button"
               onClick={handleSubmitAttendance}
               disabled={(!photo && settings.requireSelfie) || !canSubmitLocation || isSubmitting}
-              className={`flex-1 py-2.5 text-sm font-semibold text-white rounded-xl transition-all flex items-center justify-center gap-2 shadow-md ${
+              className={`flex-1 py-2.5 text-xs sm:text-sm font-semibold text-white rounded-xl transition-all flex items-center justify-center gap-1.5 sm:gap-2 shadow-md ${
                 type === "clock-in"
                   ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 shadow-blue-200 dark:shadow-none"
                   : "bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 shadow-emerald-200 dark:shadow-none"

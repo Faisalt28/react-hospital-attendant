@@ -1,13 +1,17 @@
 import { useState, useRef, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { Moon, Sun, ChevronDown, LogOut, Building2, Bell, CheckCheck, ArrowLeftRight, FileText } from "lucide-react"
+import { Moon, Sun, ChevronDown, LogOut, Building2, Bell, CheckCheck, ArrowLeftRight, FileText, Menu } from "lucide-react"
 import { useTheme } from "@/contexts/ThemeContext"
 import { useLocalStorage } from "@/hooks/useLocalStorage"
 import { SEED_EMPLOYEES, SEED_DEPARTMENTS, SEED_SWAPS, SEED_LEAVES } from "@/data/seed"
 import { POSISI_OPTIONS } from "@/data/options"
 import type { ShiftSwapRequest, LeaveRequest } from "@/types"
 
-export const SupervisorTopBar = () => {
+interface SupervisorTopBarProps {
+  onMenuClick?: () => void
+}
+
+export const SupervisorTopBar = ({ onMenuClick }: SupervisorTopBarProps) => {
   const navigate = useNavigate()
   const { isDark, toggleDark } = useTheme()
   const [showProfile, setShowProfile] = useState(false)
@@ -97,17 +101,26 @@ export const SupervisorTopBar = () => {
   }
 
   return (
-    <header className="h-16 shrink-0 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex items-center justify-between px-6 shadow-xs z-10">
-      {/* Left: Unit Room Badge */}
-      <div className="flex items-center gap-2.5">
-        <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400">
+    <header className="h-16 shrink-0 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex items-center justify-between px-3 sm:px-6 shadow-xs z-10">
+      {/* Left: Hamburger (mobile) + Unit Room Badge */}
+      <div className="flex items-center gap-2 sm:gap-2.5">
+        {onMenuClick && (
+          <button
+            onClick={onMenuClick}
+            className="md:hidden flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+            title="Buka Menu"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+        )}
+        <div className="hidden sm:flex p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400">
           <Building2 className="h-4 w-4" />
         </div>
-        <div>
-          <span className="text-xs font-bold text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
-            Unit Ruangan: {dept?.name}
+        <div className="min-w-0">
+          <span className="text-xs font-bold text-gray-900 dark:text-gray-100 flex items-center gap-1.5 truncate">
+            {dept?.name}
           </span>
-          <p className="text-[11px] text-gray-400">
+          <p className="hidden sm:block text-[11px] text-gray-400">
             {new Date().toLocaleDateString("id-ID", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
           </p>
         </div>

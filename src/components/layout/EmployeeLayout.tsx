@@ -19,7 +19,7 @@ export const EmployeeLayout = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 flex flex-col pb-20 md:pb-6">
       <EmployeeHeader />
 
-      <div className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 md:grid md:grid-cols-12 md:gap-6">
+      <div className="flex-1 max-w-6xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6 md:grid md:grid-cols-12 md:gap-6">
         {/* Desktop Sidebar Navigation */}
         <aside className="hidden md:block md:col-span-3">
           <div className="sticky top-22 bg-white dark:bg-gray-900 rounded-3xl border border-gray-200 dark:border-gray-800 p-3 shadow-xs space-y-1">

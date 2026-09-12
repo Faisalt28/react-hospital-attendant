@@ -203,8 +203,8 @@ export const SupervisorDashboard = () => {
       </div>
 
       {/* ── Direct Attendance Card for Supervisor (Presensi Mandiri Langsung) ── */}
-      <div className="rounded-3xl bg-gradient-to-br from-emerald-50/80 via-white to-teal-50/60 dark:from-emerald-950/30 dark:via-gray-900 dark:to-teal-950/20 text-gray-900 dark:text-gray-100 p-6 shadow-sm border border-emerald-200/80 dark:border-emerald-800/40 relative overflow-hidden">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
+      <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-br from-emerald-50/80 via-white to-teal-50/60 dark:from-emerald-950/30 dark:via-gray-900 dark:to-teal-950/20 text-gray-900 dark:text-gray-100 p-4 sm:p-6 shadow-sm border border-emerald-200/80 dark:border-emerald-800/40 relative overflow-hidden">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6 relative z-10">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700/50">
@@ -215,15 +215,15 @@ export const SupervisorDashboard = () => {
               </span>
             </div>
 
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
               {currentSupervisor?.name}
             </h2>
 
-            <div className="text-xs text-gray-600 dark:text-gray-300 flex flex-wrap items-center gap-3">
+            <div className="text-xs text-gray-600 dark:text-gray-300 flex flex-wrap items-center gap-2 sm:gap-3">
               <span>
                 Sif Hari Ini: <strong className="text-emerald-700 dark:text-emerald-400">{myTodayShift?.name} ({myTodayShift?.startTime} – {myTodayShift?.endTime})</strong>
               </span>
-              <span>•</span>
+              <span className="hidden sm:inline">•</span>
               <span className="flex items-center gap-1">
                 <MapPin className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                 {distance !== null ? (
@@ -242,21 +242,21 @@ export const SupervisorDashboard = () => {
           </div>
 
           {/* Quick Action Button for Clock-In / Clock-Out */}
-          <div className="flex flex-wrap items-center gap-3 shrink-0">
+          <div className="flex flex-wrap items-center gap-3 shrink-0 w-full sm:w-auto">
             {!myTodayAttendance?.clockInTime ? (
               <button
                 onClick={() => {
                   setModalType("clock-in")
                   setIsAttendanceModalOpen(true)
                 }}
-                className="px-5 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-2xl text-xs font-bold flex items-center gap-2 shadow-md shadow-emerald-500/20 transition-all cursor-pointer"
+                className="w-full sm:w-auto justify-center px-5 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl sm:rounded-2xl text-xs font-bold flex items-center gap-2 shadow-md shadow-emerald-500/20 transition-all cursor-pointer"
               >
                 <Camera className="w-4 h-4" />
                 <span>Absen Masuk (Clock In)</span>
               </button>
             ) : !myTodayAttendance?.clockOutTime ? (
-              <div className="flex items-center gap-3">
-                <div className="text-right hidden sm:block">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+                <div className="text-left sm:text-right hidden sm:block">
                   <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold block">
                     Masuk: {myTodayAttendance.clockInTime}
                   </span>
@@ -269,14 +269,14 @@ export const SupervisorDashboard = () => {
                     setModalType("clock-out")
                     setIsAttendanceModalOpen(true)
                   }}
-                  className="px-5 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white rounded-2xl text-xs font-bold flex items-center gap-2 shadow-md shadow-amber-500/20 transition-all cursor-pointer"
+                  className="w-full sm:w-auto justify-center px-5 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white rounded-xl sm:rounded-2xl text-xs font-bold flex items-center gap-2 shadow-md shadow-amber-500/20 transition-all cursor-pointer"
                 >
                   <Camera className="w-4 h-4" />
                   <span>Absen Pulang (Clock Out)</span>
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-xs">
+              <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl sm:rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-xs w-full sm:w-auto">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <div>
                   <p className="font-bold text-emerald-900 dark:text-emerald-200">Selesai Dinas Hari Ini</p>
@@ -294,51 +294,51 @@ export const SupervisorDashboard = () => {
       </div>
 
       {/* ── 4 KPI Stats Unit ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-5 rounded-3xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-xs">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs text-gray-400 font-semibold">Total Staf Unit</span>
-            <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600">
-              <Users className="h-4 w-4" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-xs">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <span className="text-[11px] sm:text-xs text-gray-400 font-semibold truncate">Total Staf Unit</span>
+            <div className="p-1.5 sm:p-2 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 shrink-0">
+              <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </div>
           </div>
-          <p className="text-2xl font-black text-gray-900 dark:text-gray-100">{unitEmployees.length} Orang</p>
-          <p className="text-[11px] text-gray-400 mt-0.5">Staf aktif di Unit {dept?.name}</p>
+          <p className="text-lg sm:text-2xl font-black text-gray-900 dark:text-gray-100">{unitEmployees.length} <span className="text-xs font-normal text-gray-500">Staf</span></p>
+          <p className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5 truncate">Unit {dept?.name}</p>
         </div>
 
-        <div className="p-5 rounded-3xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-xs">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs text-gray-400 font-semibold">Hadir Hari Ini</span>
-            <div className="p-2 rounded-xl bg-green-50 dark:bg-green-900/30 text-green-600">
-              <CheckCircle2 className="h-4 w-4" />
+        <div className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-xs">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <span className="text-[11px] sm:text-xs text-gray-400 font-semibold truncate">Hadir Hari Ini</span>
+            <div className="p-1.5 sm:p-2 rounded-xl bg-green-50 dark:bg-green-900/30 text-green-600 shrink-0">
+              <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </div>
           </div>
-          <p className="text-2xl font-black text-green-600 dark:text-green-400">
+          <p className="text-lg sm:text-2xl font-black text-green-600 dark:text-green-400">
             {unitAttendanceToday.filter((item) => item.att?.clockInTime).length} / {todayUnitSchedules.length}
           </p>
-          <p className="text-[11px] text-gray-400 mt-0.5">Staf hadir dari jadwal hari ini</p>
+          <p className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5 truncate">Dari jadwal hari ini</p>
         </div>
 
-        <div className="p-5 rounded-3xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-xs">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs text-gray-400 font-semibold">Tukar Sif Menunggu</span>
-            <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600">
-              <ArrowLeftRight className="h-4 w-4" />
+        <div className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-xs">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <span className="text-[11px] sm:text-xs text-gray-400 font-semibold truncate">Tukar Sif</span>
+            <div className="p-1.5 sm:p-2 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 shrink-0">
+              <ArrowLeftRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </div>
           </div>
-          <p className="text-2xl font-black text-amber-600 dark:text-amber-400">{pendingSwaps.length}</p>
-          <p className="text-[11px] text-gray-400 mt-0.5">Menunggu approval Anda</p>
+          <p className="text-lg sm:text-2xl font-black text-amber-600 dark:text-amber-400">{pendingSwaps.length}</p>
+          <p className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5 truncate">Menunggu approval</p>
         </div>
 
-        <div className="p-5 rounded-3xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-xs">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs text-gray-400 font-semibold">Cuti/Izin Menunggu</span>
-            <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600">
-              <FileText className="h-4 w-4" />
+        <div className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-xs">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <span className="text-[11px] sm:text-xs text-gray-400 font-semibold truncate">Cuti / Izin</span>
+            <div className="p-1.5 sm:p-2 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 shrink-0">
+              <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </div>
           </div>
-          <p className="text-2xl font-black text-purple-600 dark:text-purple-400">{pendingLeaves.length}</p>
-          <p className="text-[11px] text-gray-400 mt-0.5">Permohonan staf unit</p>
+          <p className="text-lg sm:text-2xl font-black text-purple-600 dark:text-purple-400">{pendingLeaves.length}</p>
+          <p className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5 truncate">Permohonan staf</p>
         </div>
       </div>
 
@@ -463,13 +463,13 @@ export const SupervisorDashboard = () => {
       )}
 
       {/* ── Real-Time Unit Attendance Table ── */}
-      <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-200 dark:border-gray-800 shadow-xs overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl border border-gray-200 dark:border-gray-800 shadow-xs overflow-hidden">
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <h2 className="text-base font-bold text-gray-900 dark:text-gray-100">
+            <h2 className="text-sm sm:text-base font-bold text-gray-900 dark:text-gray-100">
               Status Presensi Staf Ruangan Hari Ini
             </h2>
-            <p className="text-xs text-gray-400">
+            <p className="text-[11px] sm:text-xs text-gray-400">
               Monitoring langsung staf medis di Unit {dept?.name} per tanggal {todayDisplay}
             </p>
           </div>
@@ -483,13 +483,13 @@ export const SupervisorDashboard = () => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm min-w-[520px]">
             <thead>
               <tr className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800">
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Nama Staf</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Posisi / Jabatan</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Jadwal Shift</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status Presensi</th>
+                <th className="px-4 sm:px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Nama Staf</th>
+                <th className="px-4 sm:px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Posisi / Jabatan</th>
+                <th className="px-4 sm:px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Jadwal Shift</th>
+                <th className="px-4 sm:px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status Presensi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
