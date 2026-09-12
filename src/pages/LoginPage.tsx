@@ -54,21 +54,10 @@ const LoginPage = () => {
       (e) =>
         e.nip &&
         e.nip.trim().toUpperCase() === nip &&
-        (e.password === password || (nip === "HRD-2020-001" && password === "RS-2026")) &&
+        e.password === password &&
         e.isActive
     )
 
-    // Jika admin login dengan default password RS-2026 tapi di storage beda, sinkronkan
-    if (!emp && nip === "HRD-2020-001" && password === "RS-2026") {
-      emp = { ...SEED_EMPLOYEES[0], password: "RS-2026", isFirstLogin: false }
-      const updated = employees.map((e) =>
-        e.nip?.toUpperCase() === "HRD-2020-001" || e.id === "emp-1" ? emp! : e
-      )
-      if (!updated.some((e) => e.nip?.toUpperCase() === "HRD-2020-001")) {
-        updated.push(emp)
-      }
-      localStorage.setItem("employees", JSON.stringify(updated))
-    }
 
     if (!emp) {
       setError("NIP atau password tidak cocok. Pastikan NIP dan password sudah benar.")

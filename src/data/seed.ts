@@ -30,7 +30,7 @@ export const SEED_EMPLOYEES: Employee[] = [
     joinDate: "2026-01-01",
     isActive: true,
     password: "RS-2026",
-    isFirstLogin: false,
+    isFirstLogin: true,
   },
 ]
 
@@ -42,7 +42,7 @@ export const SEED_SCHEDULES: Schedule[] = []
 
 // ─── Auto Clean-Up / Migration from Old Dummy Storage ──────────────────────────
 const SEED_VERSION_KEY = "rs_clean_crud_version"
-const CURRENT_SEED_VERSION = "v4_clean_admin_hrd_2026"
+const CURRENT_SEED_VERSION = "v5_admin_must_change_pw_2026"
 
 if (typeof window !== "undefined") {
   try {
