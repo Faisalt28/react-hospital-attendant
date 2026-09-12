@@ -95,11 +95,11 @@ const AttendancePage = () => {
   const selectCls = "pl-3 pr-8 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300 appearance-none cursor-pointer"
 
   return (
-    <div className="p-6 space-y-5 max-w-screen-2xl mx-auto">
+    <div className="p-3 sm:p-6 space-y-5 max-w-screen-2xl mx-auto">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Rekap Kehadiran</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Data presensi harian seluruh pegawai</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Rekap Kehadiran</h1>
+        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5">Data presensi harian seluruh pegawai</p>
       </div>
 
       {/* Stats */}
@@ -118,28 +118,28 @@ const AttendancePage = () => {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3">
-        <div className="relative flex-1 min-w-[200px]">
+      <div className="flex flex-wrap gap-2">
+        <div className="relative w-full sm:flex-1 sm:min-w-[180px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input placeholder="Cari nama atau NIP..." value={search} onChange={e => setSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all" />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 w-full sm:w-auto">
           <input type="date" value={filterFrom} onChange={e => setFilterFrom(e.target.value)}
-            className={`${selectCls} min-w-[140px]`} />
+            className={`${selectCls} flex-1 sm:flex-none sm:min-w-[130px] text-sm`} />
           <span className="text-gray-400 text-sm">—</span>
           <input type="date" value={filterTo} onChange={e => setFilterTo(e.target.value)}
-            className={`${selectCls} min-w-[140px]`} />
+            className={`${selectCls} flex-1 sm:flex-none sm:min-w-[130px] text-sm`} />
         </div>
-        <div className="relative">
-          <select value={filterDept} onChange={e => setFilterDept(e.target.value)} className={`${selectCls} pr-8 min-w-[160px]`}>
+        <div className="relative flex-1 min-w-[130px]">
+          <select value={filterDept} onChange={e => setFilterDept(e.target.value)} className={`${selectCls} w-full pr-8`}>
             <option value="">Semua Dept.</option>
             {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
           </select>
           <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 pointer-events-none" />
         </div>
-        <div className="relative">
-          <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className={`${selectCls} pr-8 min-w-[150px]`}>
+        <div className="relative flex-1 min-w-[130px]">
+          <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className={`${selectCls} w-full pr-8`}>
             <option value="">Semua Status</option>
             {Object.entries(STATUS_CONFIG).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
           </select>
@@ -155,17 +155,18 @@ const AttendancePage = () => {
 
       {/* Table */}
       <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm overflow-hidden">
-        <Table>
+        <div className="overflow-x-auto">
+          <Table className="min-w-[640px]">
           <TableHeader>
             <TableRow className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/60">
               <ThSort k="date"        label="Tanggal" />
               <ThSort k="name"        label="Pegawai" />
-              <TableHead>Departemen</TableHead>
+              <TableHead className="hidden md:table-cell">Departemen</TableHead>
               <ThSort k="clockInTime" label="Jam Masuk" />
-              <TableHead>Jam Keluar</TableHead>
+              <TableHead className="hidden sm:table-cell">Jam Keluar</TableHead>
               <ThSort k="totalHours"  label="Durasi" align="right" />
               <ThSort k="status"      label="Status" />
-              <TableHead>Lokasi</TableHead>
+              <TableHead className="hidden sm:table-cell">Lokasi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -180,7 +181,7 @@ const AttendancePage = () => {
               const statusCfg = STATUS_CONFIG[rec.status]
               return (
                 <TableRow key={rec.id}>
-                  <TableCell className="font-medium text-gray-900 dark:text-gray-100">
+                  <TableCell className="font-medium text-gray-900 dark:text-gray-100 whitespace-nowrap">
                     {new Date(rec.date).toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short" })}
                   </TableCell>
                   <TableCell>
@@ -189,9 +190,9 @@ const AttendancePage = () => {
                       <p className="text-xs text-gray-400 font-mono">{rec.empNip}</p>
                     </div>
                   </TableCell>
-                  <TableCell className="text-gray-600 dark:text-gray-400">{rec.deptName}</TableCell>
+                  <TableCell className="text-gray-600 dark:text-gray-400 hidden md:table-cell">{rec.deptName}</TableCell>
                   <TableCell className="font-mono font-medium">{rec.clockInTime ?? "—"}</TableCell>
-                  <TableCell className="font-mono">{rec.clockOutTime ?? "—"}</TableCell>
+                  <TableCell className="font-mono hidden sm:table-cell">{rec.clockOutTime ?? "—"}</TableCell>
                   <TableCell className="text-right">
                     {rec.totalHours ? <span className="font-medium">{rec.totalHours.toFixed(1)} jam</span> : "—"}
                   </TableCell>
@@ -200,7 +201,7 @@ const AttendancePage = () => {
                       {statusCfg.label}
                     </span>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden sm:table-cell">
                     <span className={`text-xs font-medium ${rec.location === "inside" ? "text-green-600 dark:text-green-400" : "text-red-500 dark:text-red-400"}`}>
                       {rec.location === "inside" ? "✓ Dalam RS" : "✗ Luar RS"}
                     </span>
@@ -210,6 +211,7 @@ const AttendancePage = () => {
             })}
           </TableBody>
         </Table>
+        </div>
         <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/30">
           <p className="text-xs text-gray-500 dark:text-gray-400">
             Menampilkan <strong>{filtered.length}</strong> dari <strong>{attendance.length}</strong> rekaman · Tidak hadir: <strong className="text-red-500">{absent}</strong>

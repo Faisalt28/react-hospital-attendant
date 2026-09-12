@@ -601,17 +601,18 @@ const EmployeesPage = () => {
   }
 
   return (
-    <div className="p-6 space-y-5 max-w-screen-2xl mx-auto">
+    <div className="p-3 sm:p-6 space-y-5 max-w-screen-2xl mx-auto">
       {/* Header */}
       <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Data Pegawai</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Kelola akun dan data seluruh pegawai rumah sakit</p>
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Data Pegawai</h1>
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5">Kelola akun dan data seluruh pegawai rumah sakit</p>
         </div>
         <button onClick={openAdd}
-          className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white text-sm font-semibold rounded-xl shadow-md shadow-blue-200 dark:shadow-none transition-all active:scale-[0.98]">
+          className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white text-sm font-semibold rounded-xl shadow-md shadow-blue-200 dark:shadow-none transition-all active:scale-[0.98] shrink-0">
           <Plus className="h-4 w-4" />
-          Tambah Pegawai
+          <span className="hidden sm:inline">Tambah Pegawai</span>
+          <span className="sm:hidden">Tambah</span>
         </button>
       </div>
 
@@ -631,35 +632,43 @@ const EmployeesPage = () => {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input placeholder="Cari nama, NIP, atau email..." value={search} onChange={e => setSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all" />
         </div>
-        {[
-          { value: filterDept, setter: setFilterDept, options: departments.map(d => ({ value: d.id, label: d.name })), placeholder: "Semua Departemen" },
-          { value: filterRole, setter: setFilterRole, options: ROLE_OPTIONS, placeholder: "Semua Role" },
-        ].map((f, i) => (
-          <div key={i} className="relative">
-            <select value={f.value} onChange={e => f.setter(e.target.value)}
-              className="pl-3 pr-8 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300 appearance-none cursor-pointer min-w-[160px]">
-              <option value="">{f.placeholder}</option>
-              {f.options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-            </select>
-            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 pointer-events-none" />
-          </div>
-        ))}
+        <div className="flex gap-2">
+          {[
+            { value: filterDept, setter: setFilterDept, options: departments.map(d => ({ value: d.id, label: d.name })), placeholder: "Semua Dept." },
+            { value: filterRole, setter: setFilterRole, options: ROLE_OPTIONS, placeholder: "Semua Role" },
+          ].map((f, i) => (
+            <div key={i} className="relative flex-1">
+              <select value={f.value} onChange={e => f.setter(e.target.value)}
+                className="w-full pl-3 pr-8 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300 appearance-none cursor-pointer">
+                <option value="">{f.placeholder}</option>
+                {f.options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 pointer-events-none" />
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Table */}
       <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm min-w-[640px]">
             <thead>
               <tr className="bg-gray-50 dark:bg-gray-800/60 border-b border-gray-200 dark:border-gray-800">
                 {["Pegawai & NIP", "Posisi", "Departemen", "Role", "Status Akun", "Cuti Sisa", "Aksi"].map(h => (
-                  <th key={h} className={`px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide ${h === "Aksi" ? "text-right" : "text-left"}`}>{h}</th>
+                  <th key={h} className={`px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide ${
+                    h === "Aksi" ? "text-right" : "text-left"
+                  } ${
+                    h === "Posisi" || h === "Cuti Sisa" ? "hidden md:table-cell" : ""
+                  } ${
+                    h === "Departemen" ? "hidden lg:table-cell" : ""
+                  }`}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -692,10 +701,10 @@ const EmployeesPage = () => {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <p className="text-gray-900 dark:text-gray-100">{getPosisiLabel(emp.posisi)}</p>
+                    <p className="text-gray-900 dark:text-gray-100 text-sm">{getPosisiLabel(emp.posisi)}</p>
                     <p className="text-xs text-gray-400">{JABATAN_OPTIONS.find(j => j.value === emp.jabatan)?.label ?? emp.jabatan}</p>
                   </td>
-                  <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{getDeptName(emp.departmentId)}</td>
+                  <td className="px-4 py-3 text-gray-700 dark:text-gray-300 text-sm hidden lg:table-cell">{getDeptName(emp.departmentId)}</td>
                   <td className="px-4 py-3"><Badge role={emp.role} /></td>
                   <td className="px-4 py-3">
                     {emp.isFirstLogin ? (
@@ -715,7 +724,7 @@ const EmployeesPage = () => {
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 hidden md:table-cell">
                     <div className="flex items-center gap-1">
                       <Calendar className="h-3.5 w-3.5 text-gray-400" />
                       <span className="font-medium text-gray-700 dark:text-gray-300">{emp.annualLeaveQuota - emp.usedLeave}</span>

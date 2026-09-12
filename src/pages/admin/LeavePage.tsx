@@ -173,10 +173,10 @@ const LeavePage = () => {
   const selectCls = "pl-3 pr-8 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300 appearance-none cursor-pointer"
 
   return (
-    <div className="p-6 space-y-5 max-w-screen-2xl mx-auto">
+    <div className="p-3 sm:p-6 space-y-5 max-w-screen-2xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Cuti & Izin</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Rekap semua pengajuan cuti, izin, dan sakit</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Cuti &amp; Izin</h1>
+        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5">Rekap semua pengajuan cuti, izin, dan sakit</p>
       </div>
 
       {/* Stats */}
@@ -195,8 +195,8 @@ const LeavePage = () => {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3">
-        <div className="relative flex-1 min-w-[200px]">
+      <div className="flex flex-wrap gap-2">
+        <div className="relative w-full sm:flex-1 sm:min-w-[180px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input placeholder="Cari nama pegawai..." value={search} onChange={e => setSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all" />
@@ -206,8 +206,8 @@ const LeavePage = () => {
           { val: filterType,   set: setFilterType,   opts: Object.entries(TYPE_CONFIG).map(([v,c]) => ({ v, l: c.label })), ph: "Semua Jenis" },
           { val: filterStatus, set: setFilterStatus, opts: Object.entries(STATUS_CONFIG).map(([v,c]) => ({ v, l: c.label })), ph: "Semua Status" },
         ].map((f, i) => (
-          <div key={i} className="relative">
-            <select value={f.val} onChange={e => f.set(e.target.value)} className={`${selectCls} pr-8 min-w-[150px]`}>
+          <div key={i} className="relative flex-1 min-w-[120px]">
+            <select value={f.val} onChange={e => f.set(e.target.value)} className={`${selectCls} w-full pr-8`}>
               <option value="">{f.ph}</option>
               {f.opts.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
             </select>
@@ -218,16 +218,17 @@ const LeavePage = () => {
 
       {/* Table */}
       <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm overflow-hidden">
-        <Table>
+        <div className="overflow-x-auto">
+          <Table className="min-w-[600px]">
           <TableHeader>
             <TableRow className="bg-gray-50 dark:bg-gray-800/60 border-b border-gray-200 dark:border-gray-800">
               <TableHead>Pegawai</TableHead>
-              <TableHead>Departemen</TableHead>
+              <TableHead className="hidden md:table-cell">Departemen</TableHead>
               <TableHead>Jenis</TableHead>
-              <TableHead>Tanggal</TableHead>
-              <TableHead className="text-center">Hari</TableHead>
+              <TableHead className="hidden sm:table-cell">Tanggal</TableHead>
+              <TableHead className="text-center hidden sm:table-cell">Hari</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Pengajuan</TableHead>
+              <TableHead className="hidden lg:table-cell">Pengajuan</TableHead>
               <TableHead className="text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
@@ -250,24 +251,24 @@ const LeavePage = () => {
                       <p className="text-xs text-gray-400 font-mono">{rec.empNip}</p>
                     </div>
                   </TableCell>
-                  <TableCell className="text-gray-600 dark:text-gray-400">{rec.deptName}</TableCell>
+                  <TableCell className="text-gray-600 dark:text-gray-400 hidden md:table-cell">{rec.deptName}</TableCell>
                   <TableCell>
                     <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${typeCfg.cls}`}>{typeCfg.label}</span>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden sm:table-cell">
                     <div className="flex items-center gap-1 text-xs">
                       <Calendar className="h-3 w-3 text-gray-400" />
                       <span>{rec.startDate}</span>
                       {rec.startDate !== rec.endDate && <><span className="text-gray-400">→</span><span>{rec.endDate}</span></>}
                     </div>
                   </TableCell>
-                  <TableCell className="text-center font-semibold text-gray-900 dark:text-gray-100">{rec.totalDays}</TableCell>
+                  <TableCell className="text-center font-semibold text-gray-900 dark:text-gray-100 hidden sm:table-cell">{rec.totalDays}</TableCell>
                   <TableCell>
                     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${statusCfg.cls}`}>
                       {statusCfg.icon}{statusCfg.label}
                     </span>
                   </TableCell>
-                  <TableCell className="text-xs text-gray-400">
+                  <TableCell className="text-xs text-gray-400 hidden lg:table-cell">
                     {new Date(rec.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
                   </TableCell>
                   <TableCell className="text-right">
@@ -280,7 +281,8 @@ const LeavePage = () => {
               )
             })}
           </TableBody>
-        </Table>
+          </Table>
+          </div>
         <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/30">
           <p className="text-xs text-gray-500 dark:text-gray-400">
             Menampilkan <strong>{filtered.length}</strong> dari <strong>{leaves.length}</strong> pengajuan

@@ -252,7 +252,7 @@ const AdminDashboard = () => {
       {/* ── Charts Row ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Line Chart: Attendance Trend */}
-        <div className="lg:col-span-2 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-sm">
+        <div className="lg:col-span-2 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 sm:p-5 shadow-sm">
           <div className="flex items-center justify-between mb-5">
             <div>
               <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">Tren Kehadiran</h2>
@@ -262,7 +262,7 @@ const AdminDashboard = () => {
               Minggu ini
             </span>
           </div>
-          <ResponsiveContainer width="100%" height={220}>
+          <ResponsiveContainer width="100%" height={180}>
             <LineChart data={attendanceTrend} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" className="dark:[&>line]:stroke-gray-800" />
               <XAxis dataKey="hari" tick={{ fontSize: 12, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
@@ -301,7 +301,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Bar Chart: Per Departemen */}
-        <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-sm">
+        <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 sm:p-5 shadow-sm">
           <div className="flex items-center justify-between mb-5">
             <div>
               <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">Kehadiran per Dept.</h2>
@@ -382,13 +382,15 @@ const AdminDashboard = () => {
             </button>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[500px]">
+            <table className="w-full min-w-[520px]">
               <thead>
                 <tr className="bg-gray-50 dark:bg-gray-800/50">
                   {["Pegawai", "Tipe", "Tanggal", "Status", "Aksi"].map((h) => (
                     <th
                       key={h}
-                      className="px-4 py-2.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide"
+                      className={`px-4 py-2.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide ${
+                        h === "Tanggal" ? "hidden sm:table-cell" : ""
+                      }`}
                     >
                       {h}
                     </th>
@@ -417,7 +419,7 @@ const AdminDashboard = () => {
                           </p>
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{typeLabel}</td>
-                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap hidden sm:table-cell">
                           {req.startDate} {req.startDate !== req.endDate ? `s/d ${req.endDate}` : ""}
                         </td>
                         <td className="px-4 py-3">
