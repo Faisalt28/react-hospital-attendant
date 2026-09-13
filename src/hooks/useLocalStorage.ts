@@ -83,6 +83,23 @@ export function useLocalStorage<T>(key: string, defaultValue: T) {
 
             // Broadcast ke seluruh hook useLocalStorage yang mendengarkan key ini
             window.dispatchEvent(new CustomEvent(SYNC_EVENT, { detail: { key } }))
+
+            // Background sync ke Cloudflare D1
+            const SYNC_KEYS = [
+              "app_settings",
+              "employees",
+              "departments",
+              "shifts",
+              "schedules",
+              "attendance",
+              "leaves",
+              "swaps",
+            ]
+            if (SYNC_KEYS.includes(key)) {
+              import("@/api/client").then(({ syncToRemote }) => {
+                syncToRemote(key, nextValue)
+              })
+            }
           }, 0)
         } catch (error) {
           console.error(`Error saving localStorage key "${key}":`, error)

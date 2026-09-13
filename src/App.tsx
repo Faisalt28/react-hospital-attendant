@@ -36,10 +36,16 @@ import { SupervisorSwapApprovalsPage }  from "@/pages/supervisor/SupervisorSwapA
 import { SupervisorLeaveApprovalsPage } from "@/pages/supervisor/SupervisorLeaveApprovalsPage"
 import { SupervisorUnitReportsPage }    from "@/pages/supervisor/SupervisorUnitReportsPage"
 
-// Public Landing Page
+import { useEffect } from "react"
+import { syncFromRemote } from "@/api/client"
 import { LandingPage } from "@/pages/LandingPage"
 
 function App() {
+  useEffect(() => {
+    // Sinkronisasi data realtime dari Cloudflare D1 saat web dibuka
+    syncFromRemote()
+  }, [])
+
   return (
     <ThemeProvider>
       <BrowserRouter>
