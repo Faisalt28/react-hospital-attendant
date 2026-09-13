@@ -9,6 +9,7 @@ import { DEFAULT_SETTINGS } from "@/data/settings"
 import type { AppSettings } from "@/types"
 import { GeofenceMapPicker } from "@/components/ui/GeofenceMapPicker"
 import { ToleranceSlider } from "@/components/ui/ToleranceSlider"
+import { LocationMap } from "@/components/ui/expand-map"
 
 const SettingsPage = () => {
   const [settings, setSettings] = useLocalStorage<AppSettings>("app_settings", DEFAULT_SETTINGS)
@@ -89,131 +90,186 @@ const SettingsPage = () => {
             </div>
           </div>
 
-          <div className="p-4 sm:p-6 space-y-5">
-            {/* Nama & Alamat RS */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
-                  Nama Titik Lokasi Rumah Sakit *
-                </label>
-                <input
-                  type="text"
-                  value={form.hospitalName}
-                  onChange={(e) => handleChange("hospitalName", e.target.value)}
-                  className="w-full px-3.5 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                  required
-                />
-              </div>
+          <div className="p-4 sm:p-6">
+            {/* Grid Container: Desktop sejajar (Left: 3D Map, Right: Form Controls), Mobile vertikal ke bawah */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              
+              {/* ── Kolom Kiri (Desktop): 3D Expand Map Card & Status Panel ── */}
+              <div className="lg:col-span-5 flex flex-col items-center gap-4 bg-gradient-to-b from-gray-50/80 to-white dark:from-gray-800/40 dark:to-gray-900/60 p-4 sm:p-5 rounded-2xl border border-gray-100 dark:border-gray-800/80 shadow-xs">
+                <div className="w-full flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                      Titik Lokasi RS
+                    </span>
+                  </div>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 font-medium border border-emerald-200/50 dark:border-emerald-800/50">
+                    Interaktif 3D
+                  </span>
+                </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
-                  Alamat Lengkap Rumah Sakit
-                </label>
-                <input
-                  type="text"
-                  value={form.address}
-                  onChange={(e) => handleChange("address", e.target.value)}
-                  className="w-full px-3.5 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                />
-              </div>
-            </div>
+                {/* 3D LocationMap Component */}
+                <div className="py-2 flex justify-center w-full overflow-visible">
+                  <LocationMap
+                    location={form.hospitalName || "RSUD MediTrack"}
+                    coordinates={`${Math.abs(form.latitude).toFixed(4)}° ${form.latitude >= 0 ? "N" : "S"}, ${Math.abs(form.longitude).toFixed(4)}° ${form.longitude >= 0 ? "E" : "W"}`}
+                    radius={form.geofenceRadiusMeters}
+                    statusText="Live GPS"
+                  />
+                </div>
 
-            {/* Geofence Map Picker (Full Width) */}
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
-                Pilih Lokasi & Atur Radius dari Peta
-              </label>
-              <GeofenceMapPicker
-                latitude={form.latitude}
-                longitude={form.longitude}
-                radius={form.geofenceRadiusMeters}
-                onLocationChange={handleLocationChange}
-                onRadiusChange={handleRadiusChange}
-              />
-            </div>
-
-            {/* Koordinat manual display (Responsive grid) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">
-                  Latitude (terkoneksi dari peta)
-                </label>
-                <input
-                  type="number"
-                  step="any"
-                  value={form.latitude}
-                  onChange={(e) => handleChange("latitude", parseFloat(e.target.value) || 0)}
-                  className="w-full px-3 py-1.5 text-sm font-mono rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                />
-              </div>
-              <div>
-                <label className="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">
-                  Longitude (terkoneksi dari peta)
-                </label>
-                <input
-                  type="number"
-                  step="any"
-                  value={form.longitude}
-                  onChange={(e) => handleChange("longitude", parseFloat(e.target.value) || 0)}
-                  className="w-full px-3 py-1.5 text-sm font-mono rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                />
-              </div>
-            </div>
-
-            {/* Security Toggles for Geofencing */}
-            <div className="pt-2 border-t border-gray-100 dark:border-gray-800 space-y-3">
-              <div className="flex items-center justify-between p-3 sm:p-3.5 rounded-xl bg-gray-50 dark:bg-gray-800/40 gap-3">
-                <div className="flex items-start gap-2.5 sm:gap-3 min-w-0 flex-1">
-                  <ShieldAlert className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100 leading-snug">
-                      Wajib Berada di Dalam Radius (Strict Geofence)
-                    </p>
-                    <p className="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                      Jika aktif, sistem akan menolak absensi jika pegawai berada di luar radius {form.geofenceRadiusMeters}m.
-                    </p>
+                {/* Ringkasan Parameter Lokasi RS */}
+                <div className="w-full space-y-2 pt-1">
+                  <div className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-white dark:bg-gray-800/80 border border-gray-100 dark:border-gray-700/60">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Radius Toleransi</span>
+                    <span className="text-xs font-bold text-blue-600 dark:text-blue-400">
+                      {form.geofenceRadiusMeters} meter
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-white dark:bg-gray-800/80 border border-gray-100 dark:border-gray-700/60">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Status Validasi</span>
+                    <span className={`text-xs font-semibold ${form.blockOutsideGeofence ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
+                      {form.blockOutsideGeofence ? "Strict (Tolak Luar Radius)" : "Fleksibel"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-white dark:bg-gray-800/80 border border-gray-100 dark:border-gray-700/60 font-mono text-[11px]">
+                    <span className="text-gray-500 dark:text-gray-400 font-sans">Koordinat GPS</span>
+                    <span className="text-gray-700 dark:text-gray-300">
+                      {form.latitude.toFixed(5)}, {form.longitude.toFixed(5)}
+                    </span>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => handleChange("blockOutsideGeofence", !form.blockOutsideGeofence)}
-                  className={`relative inline-flex h-6 w-11 shrink-0 rounded-full transition-colors duration-200 ${
-                    form.blockOutsideGeofence ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-700"
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-5 w-5 mt-0.5 rounded-full bg-white shadow transition-transform duration-200 ${
-                      form.blockOutsideGeofence ? "translate-x-5" : "translate-x-0.5"
-                    }`}
-                  />
-                </button>
               </div>
 
-              <div className="flex items-center justify-between p-3 sm:p-3.5 rounded-xl bg-gray-50 dark:bg-gray-800/40 gap-3">
-                <div className="flex items-start gap-2.5 sm:gap-3 min-w-0 flex-1">
-                  <ShieldCheck className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100 leading-snug">
-                      Anti Mock Location & Fake GPS Protection
-                    </p>
-                    <p className="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                      Mendeteksi dan memblokir aplikasi lokasi palsu pada perangkat pegawai.
-                    </p>
+              {/* ── Kolom Kanan (Desktop): Form Input, Map Picker & Security Toggles ── */}
+              <div className="lg:col-span-7 space-y-5">
+                {/* Nama & Alamat RS */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Nama Titik Lokasi Rumah Sakit *
+                    </label>
+                    <input
+                      type="text"
+                      value={form.hospitalName}
+                      onChange={(e) => handleChange("hospitalName", e.target.value)}
+                      className="w-full px-3.5 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Alamat Lengkap Rumah Sakit
+                    </label>
+                    <input
+                      type="text"
+                      value={form.address}
+                      onChange={(e) => handleChange("address", e.target.value)}
+                      className="w-full px-3.5 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    />
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => handleChange("antiFakeGps", !form.antiFakeGps)}
-                  className={`relative inline-flex h-6 w-11 shrink-0 rounded-full transition-colors duration-200 ${
-                    form.antiFakeGps ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-700"
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-5 w-5 mt-0.5 rounded-full bg-white shadow transition-transform duration-200 ${
-                      form.antiFakeGps ? "translate-x-5" : "translate-x-0.5"
-                    }`}
+
+                {/* Geofence Map Picker (Peta Interaktif + Radius Slider) */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                    Pilih Lokasi & Atur Radius dari Peta
+                  </label>
+                  <GeofenceMapPicker
+                    latitude={form.latitude}
+                    longitude={form.longitude}
+                    radius={form.geofenceRadiusMeters}
+                    onLocationChange={handleLocationChange}
+                    onRadiusChange={handleRadiusChange}
                   />
-                </button>
+                </div>
+
+                {/* Koordinat manual display (Responsive grid) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">
+                      Latitude (terkoneksi dari peta)
+                    </label>
+                    <input
+                      type="number"
+                      step="any"
+                      value={form.latitude}
+                      onChange={(e) => handleChange("latitude", parseFloat(e.target.value) || 0)}
+                      className="w-full px-3 py-1.5 text-sm font-mono rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">
+                      Longitude (terkoneksi dari peta)
+                    </label>
+                    <input
+                      type="number"
+                      step="any"
+                      value={form.longitude}
+                      onChange={(e) => handleChange("longitude", parseFloat(e.target.value) || 0)}
+                      className="w-full px-3 py-1.5 text-sm font-mono rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    />
+                  </div>
+                </div>
+
+                {/* Security Toggles for Geofencing */}
+                <div className="pt-2 border-t border-gray-100 dark:border-gray-800 space-y-3">
+                  <div className="flex items-center justify-between p-3 sm:p-3.5 rounded-xl bg-gray-50 dark:bg-gray-800/40 gap-3">
+                    <div className="flex items-start gap-2.5 sm:gap-3 min-w-0 flex-1">
+                      <ShieldAlert className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100 leading-snug">
+                          Wajib Berada di Dalam Radius (Strict Geofence)
+                        </p>
+                        <p className="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                          Jika aktif, sistem akan menolak absensi jika pegawai berada di luar radius {form.geofenceRadiusMeters}m.
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleChange("blockOutsideGeofence", !form.blockOutsideGeofence)}
+                      className={`relative inline-flex h-6 w-11 shrink-0 rounded-full transition-colors duration-200 ${
+                        form.blockOutsideGeofence ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-700"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-5 w-5 mt-0.5 rounded-full bg-white shadow transition-transform duration-200 ${
+                          form.blockOutsideGeofence ? "translate-x-5" : "translate-x-0.5"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 sm:p-3.5 rounded-xl bg-gray-50 dark:bg-gray-800/40 gap-3">
+                    <div className="flex items-start gap-2.5 sm:gap-3 min-w-0 flex-1">
+                      <ShieldCheck className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100 leading-snug">
+                          Anti Mock Location & Fake GPS Protection
+                        </p>
+                        <p className="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                          Mendeteksi dan memblokir aplikasi lokasi palsu pada perangkat pegawai.
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleChange("antiFakeGps", !form.antiFakeGps)}
+                      className={`relative inline-flex h-6 w-11 shrink-0 rounded-full transition-colors duration-200 ${
+                        form.antiFakeGps ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-700"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-5 w-5 mt-0.5 rounded-full bg-white shadow transition-transform duration-200 ${
+                          form.antiFakeGps ? "translate-x-5" : "translate-x-0.5"
+                        }`}
+                      />
+                    </button>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
