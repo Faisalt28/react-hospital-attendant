@@ -2,7 +2,7 @@ import { Hono } from "hono"
 import { cors } from "hono/cors"
 
 type Bindings = {
-  DB: D1Database
+  DB: any // Cloudflare D1 Database binding
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
@@ -35,11 +35,11 @@ app.post("/api/auth/login", async (c) => {
       return c.json({ error: "NIP dan password wajib diisi" }, 400)
     }
 
-    const emp = await c.env.DB.prepare(
+    const emp: any = await c.env.DB.prepare(
       "SELECT * FROM employees WHERE nip = ? AND is_active = 1"
     )
       .bind(nip)
-      .first<any>()
+      .first()
 
     if (!emp) {
       return c.json({ error: "NIP tidak ditemukan atau akun tidak aktif" }, 401)
@@ -74,9 +74,9 @@ app.post("/api/auth/change-password", async (c) => {
       return c.json({ error: "Data ganti password tidak lengkap" }, 400)
     }
 
-    const emp = await c.env.DB.prepare("SELECT * FROM employees WHERE nip = ?")
+    const emp: any = await c.env.DB.prepare("SELECT * FROM employees WHERE nip = ?")
       .bind(nip)
-      .first<any>()
+      .first()
 
     if (!emp) {
       return c.json({ error: "Pegawai tidak ditemukan" }, 404)
@@ -119,7 +119,7 @@ app.get("/api/sync", async (c) => {
       c.env.DB.prepare("SELECT * FROM attendance").all(),
       c.env.DB.prepare("SELECT * FROM leaves").all(),
       c.env.DB.prepare("SELECT * FROM swaps").all(),
-      c.env.DB.prepare("SELECT * FROM app_settings WHERE key = 'app_settings'").first<any>(),
+      c.env.DB.prepare("SELECT * FROM app_settings WHERE key = 'app_settings'").first() as Promise<any>,
     ])
 
     const departments = (departmentsRes.results || []).map((d: any) => ({
