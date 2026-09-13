@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { Lock, Eye, EyeOff, ShieldCheck, Hospital, CheckCircle2 } from "lucide-react"
 import type { Employee } from "@/types"
 import { SEED_EMPLOYEES } from "@/data/seed"
+import { changePasswordViaD1, pushSyncToD1 } from "@/api/client"
 
 // Password strength calculator
 const getStrength = (p: string) => {
@@ -64,9 +65,11 @@ const ChangePasswordPage = () => {
     }
 
     setIsLoading(true)
-    await new Promise((r) => setTimeout(r, 800))
+    
+    // 1. Update password di Cloudflare D1
+    await changePasswordViaD1(user.id, user.nip, newPassword)
 
-    // Update employee password in localStorage
+    // 2. Update employee password di localStorage
     let employees: Employee[] = []
     try {
       const stored = localStorage.getItem("employees")
@@ -81,6 +84,7 @@ const ChangePasswordPage = () => {
         : emp
     )
     localStorage.setItem("employees", JSON.stringify(updated))
+    pushSyncToD1("employees", updated)
 
     // Update session
     localStorage.setItem("user", JSON.stringify({ ...user, isFirstLogin: false }))

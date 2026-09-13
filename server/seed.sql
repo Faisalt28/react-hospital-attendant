@@ -5,7 +5,7 @@
 
 -- 1. Departemen HRD saja
 INSERT OR REPLACE INTO departments (id, name, supervisor_id)
-VALUES ('dept-hrd', 'HRD & Personalia', 'emp-admin-1');
+VALUES ('dept-hrd', 'HRD & Personalia', 'emp-1');
 
 -- 2. Master Pola Sif Dasar
 INSERT OR REPLACE INTO shifts (id, name, start_time, end_time, color, duration_hours, is_overnight)
@@ -20,7 +20,7 @@ INSERT OR REPLACE INTO employees (
   id, nip, name, email, posisi, jabatan, department_id, role,
   annual_leave_quota, used_leave, phone, join_date, is_active, password, is_first_login
 ) VALUES (
-  'emp-admin-1',
+  'emp-1',
   'HRD-2020-001',
   'Admin HRD',
   'admin@rsmeditrack.com',

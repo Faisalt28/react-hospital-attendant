@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { SignIn } from "@/components/ui/sign-in"
 import { SEED_EMPLOYEES } from "@/data/seed"
+import { loginViaD1, syncFromD1 } from "@/api/client"
 import type { Employee } from "@/types"
 
 const LoginPage = () => {
@@ -16,48 +17,57 @@ const LoginPage = () => {
     const nip = rawNip.trim().toUpperCase()
     const password = rawPassword.trim()
 
-    // Simulate short network delay
-    await new Promise((r) => setTimeout(r, 400))
+    // 1. Coba login langsung ke backend Cloudflare D1
+    const d1Result = await loginViaD1(nip, password)
+    if (d1Result.ok && d1Result.data?.success && d1Result.data?.user) {
+      const user = d1Result.data.user
+      localStorage.setItem("user", JSON.stringify(user))
 
-    // Load employees with robust fallback
+      // Sinkronkan seluruh data terbaru dari D1 ke perangkat ini
+      await syncFromD1()
+
+      // First login → force change password
+      if (user.isFirstLogin) {
+        navigate("/change-password")
+        setIsLoading(false)
+        return
+      }
+
+      // Redirect by role
+      const roleRoutes: Record<string, string> = {
+        admin:      "/admin/dashboard",
+        hrd:        "/admin/dashboard",
+        supervisor: "/supervisor/dashboard",
+        employee:   "/employee/dashboard",
+      }
+      navigate(roleRoutes[user.role] ?? "/admin/dashboard")
+      setIsLoading(false)
+      return
+    }
+
+    // Jika D1 mengembalikan error autentikasi yang jelas (bukan network error)
+    if (d1Result.data?.error) {
+      setError(d1Result.data.error)
+      setIsLoading(false)
+      return
+    }
+
+    // 2. Fallback offline jika koneksi ke Cloudflare terputus
     let employees: Employee[] = []
     try {
       const stored = localStorage.getItem("employees")
-      if (stored) {
-        const parsed = JSON.parse(stored) as Employee[]
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          employees = parsed
-        } else {
-          employees = SEED_EMPLOYEES
-          localStorage.setItem("employees", JSON.stringify(SEED_EMPLOYEES))
-        }
-      } else {
-        employees = SEED_EMPLOYEES
-        localStorage.setItem("employees", JSON.stringify(SEED_EMPLOYEES))
-      }
+      employees = stored ? JSON.parse(stored) : SEED_EMPLOYEES
     } catch {
       employees = SEED_EMPLOYEES
-      localStorage.setItem("employees", JSON.stringify(SEED_EMPLOYEES))
     }
 
-    // Pastikan akun master Admin HRD selalu terdaftar
-    const hasAdmin = employees.some(
-      (e) => (e.nip && e.nip.toUpperCase() === "HRD-2020-001") || e.id === "emp-1"
-    )
-    if (!hasAdmin) {
-      employees = [SEED_EMPLOYEES[0], ...employees]
-      localStorage.setItem("employees", JSON.stringify(employees))
-    }
-
-    // Cari akun berdasarkan NIP (case-insensitive) & password
-    let emp = employees.find(
+    const emp = employees.find(
       (e) =>
         e.nip &&
         e.nip.trim().toUpperCase() === nip &&
         e.password === password &&
         e.isActive
     )
-
 
     if (!emp) {
       setError("NIP atau password tidak cocok. Pastikan NIP dan password sudah benar.")
@@ -79,14 +89,12 @@ const LoginPage = () => {
       })
     )
 
-    // First login → force change password
     if (emp.isFirstLogin) {
       navigate("/change-password")
       setIsLoading(false)
       return
     }
 
-    // Redirect by role
     const roleRoutes: Record<string, string> = {
       admin:      "/admin/dashboard",
       hrd:        "/admin/dashboard",

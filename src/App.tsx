@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import { ThemeProvider } from "@/contexts/ThemeContext"
-import { fetchAllFromD1 } from "@/api/client"
+import { syncFromD1 } from "@/api/client"
 
 // Auth pages
 import { LoginPage }          from "@/pages/LoginPage"
@@ -42,28 +42,32 @@ import { SupervisorUnitReportsPage }    from "@/pages/supervisor/SupervisorUnitR
 import { LandingPage } from "@/pages/LandingPage"
 
 function App() {
+  // Real-time Cloudflare D1 Synchronization
   useEffect(() => {
-    fetchAllFromD1().then((res) => {
-      if (res.success && res.data) {
-        const d = res.data
-        const syncKeys: Record<string, any> = {
-          departments: d.departments,
-          shifts: d.shifts,
-          employees: d.employees,
-          schedules: d.schedules,
-          attendance: d.attendance,
-          leaves: d.leaves,
-          swaps: d.swaps,
-          app_settings: d.app_settings,
-        }
-        Object.entries(syncKeys).forEach(([k, val]) => {
-          if (val !== undefined && val !== null) {
-            localStorage.setItem(k, JSON.stringify(val))
-            window.dispatchEvent(new CustomEvent("local-storage-sync", { detail: { key: k } }))
-          }
-        })
+    // 1. Sinkronisasi awal saat web dibuka
+    syncFromD1()
+
+    // 2. Sinkronisasi otomatis saat user kembali fokus ke tab browser / HP
+    const handleFocus = () => {
+      if (document.visibilityState === "visible") {
+        syncFromD1()
       }
-    })
+    }
+    window.addEventListener("focus", handleFocus)
+    document.addEventListener("visibilitychange", handleFocus)
+
+    // 3. Polling latar belakang tiap 4 detik agar perubahan di PC langsung muncul di HP
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        syncFromD1()
+      }
+    }, 4000)
+
+    return () => {
+      window.removeEventListener("focus", handleFocus)
+      document.removeEventListener("visibilitychange", handleFocus)
+      clearInterval(interval)
+    }
   }, [])
 
   return (
