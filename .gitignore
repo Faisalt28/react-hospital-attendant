@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Wrangler & Local DB
+.wrangler/
+*.db
+*.db-*
+*.sqlite

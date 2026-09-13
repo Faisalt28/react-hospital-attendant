@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom"
 import {
   LayoutDashboard,
   CalendarDays,
+  Clock,
   ArrowLeftRight,
   FileCheck2,
   FileSpreadsheet,
@@ -149,6 +150,7 @@ export const SupervisorSidebar = ({ mobileOpen = false, onMobileClose }: Supervi
   const navItems: NavItem[] = [
     { icon: LayoutDashboard, title: "Dashboard Unit",       path: "/supervisor/dashboard" },
     { icon: CalendarDays,    title: "Roster Builder",       path: "/supervisor/roster" },
+    { icon: Clock,           title: "Pola Sif Unit",        path: "/supervisor/shifts" },
     { icon: ArrowLeftRight,  title: "Persetujuan Tukar Sif", path: "/supervisor/swaps",  notifs: unreadSwapsCount },
     { icon: FileCheck2,      title: "Persetujuan Cuti/Izin", path: "/supervisor/leaves", notifs: unreadLeavesCount },
     { icon: FileSpreadsheet, title: "Rekapitulasi Unit",    path: "/supervisor/reports" },

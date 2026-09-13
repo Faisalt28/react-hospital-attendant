@@ -14,7 +14,6 @@ import { EmployeeLayout }  from "@/components/layout/EmployeeLayout"
 import { AdminDashboard }  from "@/pages/admin/AdminDashboard"
 import { EmployeesPage }   from "@/pages/admin/EmployeesPage"
 import { DepartmentsPage } from "@/pages/admin/DepartmentsPage"
-import { ShiftsPage }      from "@/pages/admin/ShiftsPage"
 import { SchedulePage }    from "@/pages/admin/SchedulePage"
 import { AttendancePage }  from "@/pages/admin/AttendancePage"
 import { LeavePage }       from "@/pages/admin/LeavePage"
@@ -32,6 +31,7 @@ import { EmployeeHistoryPage }  from "@/pages/employee/EmployeeHistoryPage"
 import { SupervisorLayout }             from "@/components/layout/SupervisorLayout"
 import { SupervisorDashboard }          from "@/pages/supervisor/SupervisorDashboard"
 import { SupervisorRosterPage }         from "@/pages/supervisor/SupervisorRosterPage"
+import { SupervisorShiftsPage }         from "@/pages/supervisor/SupervisorShiftsPage"
 import { SupervisorSwapApprovalsPage }  from "@/pages/supervisor/SupervisorSwapApprovalsPage"
 import { SupervisorLeaveApprovalsPage } from "@/pages/supervisor/SupervisorLeaveApprovalsPage"
 import { SupervisorUnitReportsPage }    from "@/pages/supervisor/SupervisorUnitReportsPage"
@@ -62,7 +62,7 @@ function App() {
             <Route path="dashboard"   element={<AdminDashboard />} />
             <Route path="employees"   element={<EmployeesPage />} />
             <Route path="departments" element={<DepartmentsPage />} />
-            <Route path="shifts"      element={<ShiftsPage />} />
+            <Route path="shifts"      element={<SupervisorShiftsPage />} />
             <Route path="schedule"    element={<SchedulePage />} />
             <Route path="attendance"  element={<AttendancePage />} />
             <Route path="leaves"      element={<LeavePage />} />
@@ -99,6 +99,7 @@ function App() {
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<SupervisorDashboard />} />
             <Route path="roster"    element={<SupervisorRosterPage />} />
+            <Route path="shifts"    element={<SupervisorShiftsPage />} />
             <Route path="swaps"     element={<SupervisorSwapApprovalsPage />} />
             <Route path="leaves"    element={<SupervisorLeaveApprovalsPage />} />
             <Route path="reports"   element={<SupervisorUnitReportsPage />} />
