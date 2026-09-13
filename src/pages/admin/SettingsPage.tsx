@@ -1,110 +1,95 @@
 import { useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import {
   MapPin, Clock, ShieldAlert, Check, RotateCcw,
-  Camera, Bell, Info, ShieldCheck,
+  Camera, Bell, Info, ShieldCheck, X, Navigation,
 } from "lucide-react"
 import { useLocalStorage } from "@/hooks/useLocalStorage"
 import { DEFAULT_SETTINGS } from "@/data/settings"
 import type { AppSettings } from "@/types"
 import { GeofenceMapPicker } from "@/components/ui/GeofenceMapPicker"
+import { ToleranceSlider } from "@/components/ui/ToleranceSlider"
 
 const SettingsPage = () => {
   const [settings, setSettings] = useLocalStorage<AppSettings>("app_settings", DEFAULT_SETTINGS)
   const [form, setForm] = useState<AppSettings>(settings)
-  const [isSaved, setIsSaved] = useState(false)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
 
   const handleChange = <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }))
-    setIsSaved(false)
   }
 
   const handleLocationChange = (lat: number, lng: number) => {
     setForm((prev) => ({ ...prev, latitude: lat, longitude: lng }))
-    setIsSaved(false)
   }
 
   const handleRadiusChange = (radius: number) => {
     handleChange("geofenceRadiusMeters", radius)
   }
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSave = (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
     setSettings(form)
-    setIsSaved(true)
-    setTimeout(() => setIsSaved(false), 3000)
+    setShowSuccessModal(true)
   }
 
   const handleReset = () => {
     if (window.confirm("Kembalikan semua konfigurasi ke pengaturan default?")) {
       setForm(DEFAULT_SETTINGS)
       setSettings(DEFAULT_SETTINGS)
-      setIsSaved(true)
-      setTimeout(() => setIsSaved(false), 3000)
+      setShowSuccessModal(true)
     }
   }
 
   return (
-    <div className="p-6 space-y-6 max-w-5xl mx-auto">
+    <div className="space-y-6 max-w-5xl mx-auto pb-10">
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Pengaturan Presensi</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Pengaturan Presensi</h1>
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5">
             Konfigurasi radius geofencing lokasi rumah sakit dan batas toleransi keterlambatan
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
             type="button"
             onClick={handleReset}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl transition-colors"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl transition-colors"
           >
-            <RotateCcw className="h-4 w-4" />
-            Reset Default
+            <RotateCcw className="h-4 w-4 shrink-0" />
+            <span>Reset Default</span>
           </button>
           <button
             type="button"
-            onClick={handleSave}
-            className="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 shadow-md shadow-blue-200 dark:shadow-none rounded-xl transition-all"
+            onClick={() => handleSave()}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 shadow-md shadow-blue-200 dark:shadow-none rounded-xl transition-all"
           >
-            <Check className="h-4 w-4" />
-            Simpan Pengaturan
+            <Check className="h-4 w-4 shrink-0" />
+            <span>Simpan Pengaturan</span>
           </button>
         </div>
       </div>
 
-      {/* Success Notification */}
-      {isSaved && (
-        <div className="p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex items-center gap-3 animate-in fade-in duration-200">
-          <div className="h-8 w-8 rounded-lg bg-green-100 dark:bg-green-800/40 flex items-center justify-center text-green-600 dark:text-green-400 shrink-0">
-            <Check className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-green-800 dark:text-green-300">Pengaturan Berhasil Disimpan!</p>
-            <p className="text-xs text-green-700 dark:text-green-400">
-              Konfigurasi geofencing dan aturan keterlambatan telah diterapkan ke seluruh sistem.
-            </p>
-          </div>
-        </div>
-      )}
-
       <form onSubmit={handleSave} className="space-y-6">
         {/* ── Card 1: Geofencing & Lokasi Rumah Sakit ── */}
         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+          <div className="px-4 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 shrink-0">
               <MapPin className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">Konfigurasi Geofencing</h2>
+              <h2 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100">
+                Konfigurasi Geofencing
+              </h2>
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 Pusat koordinat dan batas radius validasi absensi pegawai
               </p>
             </div>
           </div>
 
-          <div className="p-6 space-y-5">
+          <div className="p-4 sm:p-6 space-y-5">
             {/* Nama & Alamat RS */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -131,47 +116,60 @@ const SettingsPage = () => {
                   className="w-full px-3.5 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-300"
                 />
               </div>
-                {/* Geofence Map Picker */}
-            <GeofenceMapPicker
-              latitude={form.latitude}
-              longitude={form.longitude}
-              radius={form.geofenceRadiusMeters}
-              onLocationChange={handleLocationChange}
-              onRadiusChange={handleRadiusChange}
-            />
+            </div>
 
-            {/* Koordinat manual fallback (readonly display) */}
-            <div className="grid grid-cols-2 gap-3">
+            {/* Geofence Map Picker (Full Width) */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                Pilih Lokasi & Atur Radius dari Peta
+              </label>
+              <GeofenceMapPicker
+                latitude={form.latitude}
+                longitude={form.longitude}
+                radius={form.geofenceRadiusMeters}
+                onLocationChange={handleLocationChange}
+                onRadiusChange={handleRadiusChange}
+              />
+            </div>
+
+            {/* Koordinat manual display (Responsive grid) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">Latitude (dikunci dari peta)</label>
+                <label className="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">
+                  Latitude (terkoneksi dari peta)
+                </label>
                 <input
-                  type="number" step="any"
+                  type="number"
+                  step="any"
                   value={form.latitude}
                   onChange={(e) => handleChange("latitude", parseFloat(e.target.value) || 0)}
                   className="w-full px-3 py-1.5 text-sm font-mono rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-300"
                 />
               </div>
               <div>
-                <label className="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">Longitude (dikunci dari peta)</label>
+                <label className="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">
+                  Longitude (terkoneksi dari peta)
+                </label>
                 <input
-                  type="number" step="any"
+                  type="number"
+                  step="any"
                   value={form.longitude}
                   onChange={(e) => handleChange("longitude", parseFloat(e.target.value) || 0)}
                   className="w-full px-3 py-1.5 text-sm font-mono rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-300"
                 />
               </div>
-            </div>          </div>
+            </div>
 
             {/* Security Toggles for Geofencing */}
             <div className="pt-2 border-t border-gray-100 dark:border-gray-800 space-y-3">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-800/40">
-                <div className="flex items-start gap-3">
+              <div className="flex items-center justify-between p-3 sm:p-3.5 rounded-xl bg-gray-50 dark:bg-gray-800/40 gap-3">
+                <div className="flex items-start gap-2.5 sm:gap-3 min-w-0 flex-1">
                   <ShieldAlert className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100 leading-snug">
                       Wajib Berada di Dalam Radius (Strict Geofence)
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <p className="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                       Jika aktif, sistem akan menolak absensi jika pegawai berada di luar radius {form.geofenceRadiusMeters}m.
                     </p>
                   </div>
@@ -191,14 +189,14 @@ const SettingsPage = () => {
                 </button>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-800/40">
-                <div className="flex items-start gap-3">
+              <div className="flex items-center justify-between p-3 sm:p-3.5 rounded-xl bg-gray-50 dark:bg-gray-800/40 gap-3">
+                <div className="flex items-start gap-2.5 sm:gap-3 min-w-0 flex-1">
                   <ShieldCheck className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100 leading-snug">
                       Anti Mock Location & Fake GPS Protection
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <p className="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                       Mendeteksi dan memblokir aplikasi lokasi palsu pada perangkat pegawai.
                     </p>
                   </div>
@@ -223,62 +221,61 @@ const SettingsPage = () => {
 
         {/* ── Card 2: Setting Toleransi Keterlambatan ── */}
         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400">
+          <div className="px-4 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 shrink-0">
               <Clock className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">Toleransi Keterlambatan & Jam Kerja</h2>
+              <h2 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100">
+                Toleransi Keterlambatan & Jam Kerja
+              </h2>
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 Aturan batas menit keterlambatan dan jendela waktu presensi masuk/pulang
               </p>
             </div>
           </div>
 
-          <div className="p-6 space-y-6">
-            {/* Toleransi Keterlambatan Slider */}
+          <div className="p-4 sm:p-6 space-y-6">
+            {/* Toleransi Keterlambatan Slider with accurate ticks & presets */}
             <div>
-              <div className="flex justify-between items-center mb-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
                 <div>
-                  <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                  <label className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300">
                     Batas Toleransi Keterlambatan Masuk
                   </label>
                   <p className="text-[11px] text-gray-400">
                     Pegawai yang clock-in setelah jam shift + batas ini akan otomatis tercatat sebagai "Terlambat"
                   </p>
                 </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-xl font-bold text-amber-600 dark:text-amber-400">
+                <div className="self-start sm:self-auto flex items-baseline gap-1.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/50 px-3 py-1 rounded-xl">
+                  <span className="text-xl font-bold text-amber-600 dark:text-amber-400 tabular-nums">
                     {form.lateToleranceMinutes}
                   </span>
-                  <span className="text-xs text-gray-400">menit</span>
+                  <span className="text-xs font-medium text-amber-700 dark:text-amber-300">menit</span>
                 </div>
               </div>
 
-              <input
-                type="range"
+              {/* Accurate Tolerance Slider */}
+              <ToleranceSlider
+                value={form.lateToleranceMinutes}
+                onChange={(val) => handleChange("lateToleranceMinutes", val)}
                 min={0}
                 max={45}
                 step={5}
-                value={form.lateToleranceMinutes}
-                onChange={(e) => handleChange("lateToleranceMinutes", parseInt(e.target.value))}
-                className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-amber-500"
               />
-              <div className="flex justify-between text-[10px] text-gray-400 mt-1">
-                <span>0 m (Tanpa Toleransi)</span>
-                <span>15 m (Standar)</span>
-                <span>30 m</span>
-                <span>45 m</span>
-              </div>
             </div>
 
             {/* Simulasi Ilustrasi Toleransi */}
-            <div className="p-4 rounded-xl bg-amber-50/70 dark:bg-amber-900/10 border border-amber-200/80 dark:border-amber-800/50 flex items-start gap-3">
+            <div className="p-3.5 sm:p-4 rounded-xl bg-amber-50/70 dark:bg-amber-900/10 border border-amber-200/80 dark:border-amber-800/50 flex items-start gap-3">
               <Info className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-              <div className="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+              <div className="text-xs text-gray-700 dark:text-gray-300 space-y-1 min-w-0 flex-1">
                 <p className="font-semibold text-amber-800 dark:text-amber-300">Contoh Simulasi Shift Pagi (07:00):</p>
-                <p>• Clock-in pukul <strong>07:00 – 07:{form.lateToleranceMinutes.toString().padStart(2, "0")}</strong> → Status <span className="text-green-600 font-semibold">Tepat Waktu (On-Time)</span></p>
-                <p>• Clock-in pukul <strong>07:{form.lateToleranceMinutes + 1 > 59 ? "59" : (form.lateToleranceMinutes + 1).toString().padStart(2, "0")} ke atas</strong> → Status <span className="text-red-600 font-semibold">Terlambat (Late)</span></p>
+                <p className="leading-relaxed">
+                  • Clock-in pukul <strong>07:00 – 07:{form.lateToleranceMinutes.toString().padStart(2, "0")}</strong> → Status <span className="text-green-600 dark:text-green-400 font-semibold">Tepat Waktu (On-Time)</span>
+                </p>
+                <p className="leading-relaxed">
+                  • Clock-in pukul <strong>07:{form.lateToleranceMinutes + 1 > 59 ? "59" : (form.lateToleranceMinutes + 1).toString().padStart(2, "0")} ke atas</strong> → Status <span className="text-red-600 dark:text-red-400 font-semibold">Terlambat (Late)</span>
+                </p>
               </div>
             </div>
 
@@ -298,7 +295,7 @@ const SettingsPage = () => {
                     onChange={(e) => handleChange("earlyClockInMinutes", parseInt(e.target.value) || 0)}
                     className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-300 pr-24"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none">
                     menit sblm shift
                   </span>
                 </div>
@@ -319,7 +316,7 @@ const SettingsPage = () => {
                     onChange={(e) => handleChange("maxClockOutMinutes", parseInt(e.target.value) || 0)}
                     className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-300 pr-24"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none">
                     menit stlh shift
                   </span>
                 </div>
@@ -329,14 +326,14 @@ const SettingsPage = () => {
 
             {/* Additional verification settings */}
             <div className="pt-2 border-t border-gray-100 dark:border-gray-800 space-y-3">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-800/40">
-                <div className="flex items-start gap-3">
+              <div className="flex items-center justify-between p-3 sm:p-3.5 rounded-xl bg-gray-50 dark:bg-gray-800/40 gap-3">
+                <div className="flex items-start gap-2.5 sm:gap-3 min-w-0 flex-1">
                   <Camera className="h-5 w-5 text-purple-500 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100 leading-snug">
                       Wajib Selfie Kamera Depan (Face Verification)
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <p className="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                       Pegawai wajib mengambil foto selfie saat melakukan presensi masuk dan pulang.
                     </p>
                   </div>
@@ -356,14 +353,14 @@ const SettingsPage = () => {
                 </button>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-800/40">
-                <div className="flex items-start gap-3">
+              <div className="flex items-center justify-between p-3 sm:p-3.5 rounded-xl bg-gray-50 dark:bg-gray-800/40 gap-3">
+                <div className="flex items-start gap-2.5 sm:gap-3 min-w-0 flex-1">
                   <Bell className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100 leading-snug">
                       Notifikasi Otomatis ke Supervisor Saat Keterlambatan
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <p className="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                       Kirim pemberitahuan otomatis ke Kepala Ruangan jika ada staf yang belum hadir setelah batas toleransi.
                     </p>
                   </div>
@@ -386,24 +383,127 @@ const SettingsPage = () => {
           </div>
         </div>
 
-        {/* Bottom Save Bar */}
-        <div className="flex justify-end gap-3 pt-2">
+        {/* Bottom Save Bar (Responsive buttons) */}
+        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-2">
           <button
             type="button"
             onClick={handleReset}
-            className="px-5 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl transition-colors"
+            className="w-full sm:w-auto px-5 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl transition-colors text-center"
           >
             Batal / Reset
           </button>
           <button
             type="submit"
-            className="flex items-center gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 shadow-md shadow-blue-200 dark:shadow-none rounded-xl transition-all"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 shadow-md shadow-blue-200 dark:shadow-none rounded-xl transition-all text-center"
           >
-            <Check className="h-4 w-4" />
-            Simpan Perubahan
+            <Check className="h-4 w-4 shrink-0" />
+            <span>Simpan Perubahan</span>
           </button>
         </div>
       </form>
+
+      {/* ── Pop-Up Modal di Tengah Layar (Pengaturan Berhasil Disimpan) ── */}
+      <AnimatePresence>
+        {showSuccessModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop with Blur */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowSuccessModal(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+            />
+
+            {/* Modal Card */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", stiffness: 350, damping: 28 }}
+              className="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 p-6 sm:p-7 overflow-hidden z-10"
+            >
+              {/* Close Button X */}
+              <button
+                type="button"
+                onClick={() => setShowSuccessModal(false)}
+                className="absolute top-4 right-4 p-2 rounded-xl text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                aria-label="Tutup"
+              >
+                <X className="h-5 w-5" />
+              </button>
+
+              {/* Animated Icon & Title */}
+              <div className="flex flex-col items-center text-center">
+                <div className="relative mb-4">
+                  <motion.div
+                    className="absolute inset-0 rounded-full bg-green-400/20"
+                    animate={{ scale: [1, 1.4, 1], opacity: [0.6, 0, 0.6] }}
+                    transition={{ repeat: Infinity, duration: 2 }}
+                  />
+                  <div className="h-16 w-16 rounded-2xl bg-gradient-to-tr from-green-500 to-emerald-400 flex items-center justify-center text-white shadow-lg shadow-green-500/30">
+                    <Check className="h-8 w-8 stroke-[2.5]" />
+                  </div>
+                </div>
+
+                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                  Pengaturan Berhasil Disimpan!
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5 max-w-xs leading-relaxed">
+                  Konfigurasi geofencing dan aturan toleransi presensi telah diperbarui secara realtime ke seluruh sistem.
+                </p>
+
+                {/* Summary Box of Saved Settings */}
+                <div className="w-full mt-5 p-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-700/60 text-left space-y-2 text-xs">
+                  <div className="flex items-center justify-between py-1 border-b border-gray-200/60 dark:border-gray-700/40">
+                    <span className="text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                      <MapPin className="h-3.5 w-3.5 text-blue-500 shrink-0" /> Lokasi RS
+                    </span>
+                    <span className="font-semibold text-gray-800 dark:text-gray-200 truncate max-w-[180px]">
+                      {form.hospitalName}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between py-1 border-b border-gray-200/60 dark:border-gray-700/40">
+                    <span className="text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                      <Navigation className="h-3.5 w-3.5 text-blue-500 shrink-0" /> Radius Geofence
+                    </span>
+                    <span className="font-semibold text-blue-600 dark:text-blue-400">
+                      {form.geofenceRadiusMeters} meter
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between py-1 border-b border-gray-200/60 dark:border-gray-700/40">
+                    <span className="text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                      <Clock className="h-3.5 w-3.5 text-amber-500 shrink-0" /> Toleransi Keterlambatan
+                    </span>
+                    <span className="font-semibold text-amber-600 dark:text-amber-400">
+                      {form.lateToleranceMinutes} menit
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                      <ShieldAlert className="h-3.5 w-3.5 text-purple-500 shrink-0" /> Strict Geofence
+                    </span>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">
+                      {form.blockOutsideGeofence ? "Aktif (Wajib di Radius)" : "Non-aktif"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Primary Button */}
+                <div className="w-full mt-6">
+                  <button
+                    type="button"
+                    onClick={() => setShowSuccessModal(false)}
+                    className="w-full py-2.5 px-4 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 shadow-md shadow-blue-500/25 transition-all"
+                  >
+                    Mengerti & Tutup
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

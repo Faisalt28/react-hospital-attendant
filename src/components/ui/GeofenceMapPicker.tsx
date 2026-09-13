@@ -96,10 +96,24 @@ const RadiusSlider = ({
           className="absolute left-0 h-2 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 pointer-events-none"
           style={{ width: `${pct}%` }}
         />
+        {/* Tick dots along track */}
+        {ticks.map((t) => {
+          const tp = ((t - min) / (max - min)) * 100
+          const isPassed = t <= value
+          return (
+            <div
+              key={t}
+              className={`absolute w-2 h-2 rounded-full -translate-x-1/2 pointer-events-none transition-colors ${
+                isPassed ? "bg-white border border-blue-600" : "bg-gray-300 dark:bg-gray-600"
+              }`}
+              style={{ left: `${tp}%` }}
+            />
+          )
+        })}
         {/* Thumb */}
         <motion.div
-          className="absolute w-5 h-5 rounded-full bg-white border-2 border-blue-500 shadow-md cursor-grab active:cursor-grabbing z-10 touch-none"
-          style={{ left: `calc(${pct}% - 10px)` }}
+          className="absolute w-5 h-5 rounded-full bg-white border-2 border-blue-500 shadow-md cursor-grab active:cursor-grabbing z-10 touch-none -translate-x-1/2"
+          style={{ left: `${pct}%` }}
           whileHover={{ scale: 1.2 }}
           whileTap={{ scale: 0.95 }}
           transition={{ type: "spring", stiffness: 400, damping: 25 }}
@@ -112,17 +126,31 @@ const RadiusSlider = ({
       <div className="relative h-4">
         {ticks.map((tick) => {
           const tp = ((tick - min) / (max - min)) * 100
+          const isFirst = tick === min
+          const isLast = tick === max
           return (
             <button
               key={tick}
               type="button"
               onClick={() => onChange(tick)}
-              className={`absolute text-[10px] -translate-x-1/2 transition-colors ${
+              className={`absolute text-[10px] transition-colors ${
+                isFirst
+                  ? "left-0 text-left"
+                  : isLast
+                  ? "right-0 text-right"
+                  : "-translate-x-1/2 text-center"
+              } ${
                 value === tick
                   ? "text-blue-600 dark:text-blue-400 font-bold"
                   : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
               }`}
-              style={{ left: `${tp}%` }}
+              style={
+                isFirst
+                  ? { left: "0%" }
+                  : isLast
+                  ? { right: "0%" }
+                  : { left: `${tp}%` }
+              }
             >
               {tick}m
             </button>
@@ -374,7 +402,7 @@ const GeofenceMapPicker = ({
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -6 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute top-full left-0 right-12 sm:right-0 mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden"
+                      className="absolute top-full left-0 right-0 mt-1.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden"
                     >
                       {searchResults.map((r) => (
                         <button
