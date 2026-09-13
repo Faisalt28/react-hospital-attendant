@@ -1,52 +1,30 @@
 import { useState } from "react"
 import {
   MapPin, Clock, ShieldAlert, Check, RotateCcw,
-  Navigation, Camera, Bell, Info, ShieldCheck,
+  Camera, Bell, Info, ShieldCheck,
 } from "lucide-react"
 import { useLocalStorage } from "@/hooks/useLocalStorage"
 import { DEFAULT_SETTINGS } from "@/data/settings"
 import type { AppSettings } from "@/types"
+import { GeofenceMapPicker } from "@/components/ui/GeofenceMapPicker"
 
 const SettingsPage = () => {
   const [settings, setSettings] = useLocalStorage<AppSettings>("app_settings", DEFAULT_SETTINGS)
   const [form, setForm] = useState<AppSettings>(settings)
   const [isSaved, setIsSaved] = useState(false)
-  const [geoLoading, setGeoLoading] = useState(false)
-  const [geoError, setGeoError] = useState("")
 
   const handleChange = <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }))
     setIsSaved(false)
   }
 
-  const handleGetCurrentLocation = () => {
-    if (!navigator.geolocation) {
-      setGeoError("Browser Anda tidak mendukung geolokasi.")
-      return
-    }
+  const handleLocationChange = (lat: number, lng: number) => {
+    setForm((prev) => ({ ...prev, latitude: lat, longitude: lng }))
+    setIsSaved(false)
+  }
 
-    setGeoLoading(true)
-    setGeoError("")
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setForm((prev) => ({
-          ...prev,
-          latitude: parseFloat(position.coords.latitude.toFixed(6)),
-          longitude: parseFloat(position.coords.longitude.toFixed(6)),
-        }))
-        setGeoLoading(false)
-      },
-      (error) => {
-        setGeoLoading(false)
-        if (error.code === error.PERMISSION_DENIED) {
-          setGeoError("Izin lokasi ditolak oleh browser.")
-        } else {
-          setGeoError("Gagal mendeteksi lokasi: " + error.message)
-        }
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    )
+  const handleRadiusChange = (radius: number) => {
+    handleChange("geofenceRadiusMeters", radius)
   }
 
   const handleSave = (e: React.FormEvent) => {
@@ -153,90 +131,36 @@ const SettingsPage = () => {
                   className="w-full px-3.5 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-300"
                 />
               </div>
-            </div>
+                {/* Geofence Map Picker */}
+            <GeofenceMapPicker
+              latitude={form.latitude}
+              longitude={form.longitude}
+              radius={form.geofenceRadiusMeters}
+              onLocationChange={handleLocationChange}
+              onRadiusChange={handleRadiusChange}
+            />
 
-            {/* Koordinat GPS */}
-            <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-                  Koordinat Titik Pusat RS (Latitude & Longitude)
-                </span>
-                <button
-                  type="button"
-                  onClick={handleGetCurrentLocation}
-                  disabled={geoLoading}
-                  className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-900/30 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
-                >
-                  <Navigation className={`h-3.5 w-3.5 ${geoLoading ? "animate-spin" : ""}`} />
-                  {geoLoading ? "Mengambil GPS..." : "Gunakan Lokasi Saya Saat Ini"}
-                </button>
+            {/* Koordinat manual fallback (readonly display) */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">Latitude (dikunci dari peta)</label>
+                <input
+                  type="number" step="any"
+                  value={form.latitude}
+                  onChange={(e) => handleChange("latitude", parseFloat(e.target.value) || 0)}
+                  className="w-full px-3 py-1.5 text-sm font-mono rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                />
               </div>
-
-              {geoError && (
-                <p className="text-xs text-red-500 bg-red-50 dark:bg-red-900/20 p-2 rounded-lg">{geoError}</p>
-              )}
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">Latitude</label>
-                  <input
-                    type="number"
-                    step="any"
-                    value={form.latitude}
-                    onChange={(e) => handleChange("latitude", parseFloat(e.target.value) || 0)}
-                    className="w-full px-3 py-1.5 text-sm font-mono rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">Longitude</label>
-                  <input
-                    type="number"
-                    step="any"
-                    value={form.longitude}
-                    onChange={(e) => handleChange("longitude", parseFloat(e.target.value) || 0)}
-                    className="w-full px-3 py-1.5 text-sm font-mono rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                    required
-                  />
-                </div>
+              <div>
+                <label className="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">Longitude (dikunci dari peta)</label>
+                <input
+                  type="number" step="any"
+                  value={form.longitude}
+                  onChange={(e) => handleChange("longitude", parseFloat(e.target.value) || 0)}
+                  className="w-full px-3 py-1.5 text-sm font-mono rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                />
               </div>
-            </div>
-
-            {/* Radius Geofencing Slider */}
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <div>
-                  <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-                    Radius Toleransi Geofencing
-                  </label>
-                  <p className="text-[11px] text-gray-400">
-                    Jarak maksimum pegawai dari titik pusat RS agar presensi diakui dalam area
-                  </p>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                    {form.geofenceRadiusMeters}
-                  </span>
-                  <span className="text-xs text-gray-400">meter</span>
-                </div>
-              </div>
-
-              <input
-                type="range"
-                min={20}
-                max={500}
-                step={10}
-                value={form.geofenceRadiusMeters}
-                onChange={(e) => handleChange("geofenceRadiusMeters", parseInt(e.target.value))}
-                className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
-              />
-              <div className="flex justify-between text-[10px] text-gray-400 mt-1">
-                <span>20 m (Sangat Ketat)</span>
-                <span>100 m (Standar RS)</span>
-                <span>250 m</span>
-                <span>500 m (Area Luas)</span>
-              </div>
-            </div>
+            </div>          </div>
 
             {/* Security Toggles for Geofencing */}
             <div className="pt-2 border-t border-gray-100 dark:border-gray-800 space-y-3">
