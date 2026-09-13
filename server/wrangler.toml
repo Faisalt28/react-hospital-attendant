@@ -1,4 +1,4 @@
-name = "rs-meditrack-api"
+name = "rs-meditrack-backend"
 main = "src/index.ts"
 compatibility_date = "2024-09-23"
 
@@ -6,4 +6,4 @@ compatibility_date = "2024-09-23"
 [[d1_databases]]
 binding = "DB"
 database_name = "rs-meditrack-db"
-database_id = "ISI_DENGAN_DATABASE_ID_DARI_CLOUDFLARE"
+database_id = "5ee18b6c-d01b-451d-a541-fd606166a919"

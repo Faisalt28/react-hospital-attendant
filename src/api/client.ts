@@ -4,7 +4,7 @@
 
 export const API_BASE_URL: string =
   (import.meta.env.VITE_API_BASE_URL as string) ||
-  "https://rs-meditrack-api.faisal-artupairt28.workers.dev"
+  "https://rs-meditrack-backend.faisal-artupairt28.workers.dev"
 
 export interface SyncResponse {
   success: boolean
