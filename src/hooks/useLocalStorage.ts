@@ -1,10 +1,22 @@
 import { useState, useEffect, useCallback } from "react"
+import { pushSyncToD1 } from "@/api/client"
 
 const SYNC_EVENT = "local-storage-sync"
 
+const SYNC_KEYS = [
+  "app_settings",
+  "employees",
+  "departments",
+  "shifts",
+  "schedules",
+  "attendance",
+  "leaves",
+  "swaps",
+]
+
 /**
- * Hook shared untuk semua data — pakai localStorage sebagai mock database reaktif.
- * Mendukung auto-sync real-time antar-komponen dalam 1 tab maupun multi-tab.
+ * Hook shared untuk membaca dan menulis data state aplikasi.
+ * Terhubung langsung ke Cloudflare D1 (Cloud-First) dengan caching reaktif di browser.
  */
 export function useLocalStorage<T>(key: string, defaultValue: T) {
   const readValue = useCallback((): T => {
@@ -21,7 +33,7 @@ export function useLocalStorage<T>(key: string, defaultValue: T) {
 
   const [data, setDataState] = useState<T>(readValue)
 
-  // Listen perubahan dari komponen lain (dalam tab yang sama atau tab berbeda)
+  // Listen perubahan sinkronisasi dari Cloudflare D1 atau komponen lain
   useEffect(() => {
     const handleSync = (e: Event) => {
       const customEvent = e as CustomEvent<{ key?: string }>
@@ -52,6 +64,11 @@ export function useLocalStorage<T>(key: string, defaultValue: T) {
         try {
           localStorage.setItem(key, JSON.stringify(nextValue))
 
+          // Sinkronisasi otomatis ke Cloudflare D1
+          if (SYNC_KEYS.includes(key)) {
+            pushSyncToD1(key, nextValue)
+          }
+
           // Defer broadcast agar tidak memicu setState di komponen lain saat render cycle sedang berjalan
           setTimeout(() => {
             // Auto-sync session "user" jika data employee yang diedit adalah user yang sedang login
@@ -81,28 +98,11 @@ export function useLocalStorage<T>(key: string, defaultValue: T) {
               }
             }
 
-            // Broadcast ke seluruh hook useLocalStorage yang mendengarkan key ini
+            // Broadcast ke seluruh hook yang mendengarkan key ini
             window.dispatchEvent(new CustomEvent(SYNC_EVENT, { detail: { key } }))
-
-            // Asynchronous push to Cloudflare Workers & D1 database
-            const SYNC_KEYS = [
-              "app_settings",
-              "employees",
-              "departments",
-              "shifts",
-              "schedules",
-              "attendance",
-              "leaves",
-              "swaps",
-            ]
-            if (SYNC_KEYS.includes(key)) {
-              import("@/api/client").then(({ pushSyncToD1 }) => {
-                pushSyncToD1(key, nextValue)
-              })
-            }
           }, 0)
         } catch (error) {
-          console.error(`Error saving localStorage key "${key}":`, error)
+          console.error(`Error saving key "${key}":`, error)
         }
         return nextValue
       })
