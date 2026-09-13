@@ -67,14 +67,14 @@ const ChangePasswordPage = () => {
     setIsLoading(true)
     
     // 1. Update password di Cloudflare D1
-    const res = await changePasswordViaD1(user.id, user.nip, newPassword)
-    if (!res.ok) {
-      setError(res.error || res.data?.error || "Gagal memperbarui password di server Cloudflare.")
+    const d1Res = await changePasswordViaD1(user.id, user.nip, newPassword)
+    if (!d1Res.ok) {
+      setError(d1Res.error || d1Res.data?.error || "Gagal memperbarui password di server Cloudflare D1.")
       setIsLoading(false)
       return
     }
 
-    // 2. Update employee password di localStorage
+    // 2. Update employee password di localStorage & Cloudflare
     let employees: Employee[] = []
     try {
       const stored = localStorage.getItem("employees")
@@ -84,12 +84,12 @@ const ChangePasswordPage = () => {
     }
 
     const updated = employees.map((emp) =>
-      emp.id === user.id
+      emp.id === user.id || emp.nip === user.nip
         ? { ...emp, password: newPassword, isFirstLogin: false }
         : emp
     )
     localStorage.setItem("employees", JSON.stringify(updated))
-    pushSyncToD1("employees", updated)
+    await pushSyncToD1("employees", updated)
 
     // Update session
     localStorage.setItem("user", JSON.stringify({ ...user, isFirstLogin: false }))

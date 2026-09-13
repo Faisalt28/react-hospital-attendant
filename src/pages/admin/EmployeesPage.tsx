@@ -9,6 +9,7 @@ import { useLocalStorage } from "@/hooks/useLocalStorage"
 import { SEED_EMPLOYEES, SEED_DEPARTMENTS } from "@/data/seed"
 import { POSISI_OPTIONS, JABATAN_OPTIONS } from "@/data/options"
 import type { Employee, Role } from "@/types"
+import { changePasswordViaD1 } from "@/api/client"
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -585,6 +586,7 @@ const EmployeesPage = () => {
     if (!me) return "Akun tidak ditemukan."
     if (me.password !== currentPw) return "Password saat ini salah."
     setEmployees(prev => prev.map(e => e.id === currentUser.id ? { ...e, password: newPw } : e))
+    changePasswordViaD1(currentUser.id, currentUser.nip, newPw)
     return null
   }
 

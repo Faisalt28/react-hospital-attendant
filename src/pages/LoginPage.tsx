@@ -1,9 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { SignIn } from "@/components/ui/sign-in"
-import { SEED_EMPLOYEES } from "@/data/seed"
 import { loginViaD1, syncFromD1 } from "@/api/client"
-import type { Employee } from "@/types"
 
 const LoginPage = () => {
   const navigate = useNavigate()
@@ -45,63 +43,21 @@ const LoginPage = () => {
       return
     }
 
-    // Jika D1 mengembalikan error autentikasi yang jelas (bukan network error)
+    // Jika Cloudflare D1 mengembalikan pesan error (NIP tidak ditemukan atau kata sandi salah)
     if (d1Result.data?.error) {
       setError(d1Result.data.error)
       setIsLoading(false)
       return
     }
 
-    // 2. Fallback offline jika koneksi ke Cloudflare terputus
-    let employees: Employee[] = []
-    try {
-      const stored = localStorage.getItem("employees")
-      employees = stored ? JSON.parse(stored) : SEED_EMPLOYEES
-    } catch {
-      employees = SEED_EMPLOYEES
-    }
-
-    const emp = employees.find(
-      (e) =>
-        e.nip &&
-        e.nip.trim().toUpperCase() === nip &&
-        e.password === password &&
-        e.isActive
-    )
-
-    if (!emp) {
-      setError("NIP atau password tidak cocok. Pastikan NIP dan password sudah benar.")
+    // Jika terjadi kegagalan jaringan atau server backend offline
+    if (!d1Result.ok) {
+      setError(d1Result.error || "Gagal terhubung ke Cloudflare D1. Pastikan koneksi internet aktif.")
       setIsLoading(false)
       return
     }
 
-    // Save session
-    localStorage.setItem(
-      "user",
-      JSON.stringify({
-        id: emp.id,
-        nip: emp.nip,
-        name: emp.name,
-        email: emp.email,
-        role: emp.role,
-        departmentId: emp.departmentId,
-        isFirstLogin: emp.isFirstLogin,
-      })
-    )
-
-    if (emp.isFirstLogin) {
-      navigate("/change-password")
-      setIsLoading(false)
-      return
-    }
-
-    const roleRoutes: Record<string, string> = {
-      admin:      "/admin/dashboard",
-      hrd:        "/admin/dashboard",
-      supervisor: "/supervisor/dashboard",
-      employee:   "/employee/dashboard",
-    }
-    navigate(roleRoutes[emp.role] ?? "/admin/dashboard")
+    setError("Autentikasi gagal. Silakan coba lagi.")
     setIsLoading(false)
   }
 

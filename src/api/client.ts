@@ -1,8 +1,7 @@
-const envUrl = (import.meta.env.VITE_API_BASE_URL as string) || ""
+// Konfigurasi URL backend Cloudflare Workers & D1 Database
 export const API_BASE_URL: string =
-  envUrl && !envUrl.includes("rs-meditrack-api")
-    ? envUrl
-    : "https://rs-meditrack-backend.faisal-artupairt28.workers.dev"
+  (import.meta.env.VITE_API_BASE_URL as string) ||
+  "https://rs-meditrack-backend.faisal-artupairt28.workers.dev"
 
 export interface SyncResponse {
   success: boolean

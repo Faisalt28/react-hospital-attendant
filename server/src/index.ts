@@ -87,11 +87,14 @@ app.post("/api/auth/change-password", async (c) => {
       return c.json({ error: "Password baru minimal 8 karakter" }, 400)
     }
 
-    const res = await c.env.DB.prepare(
-      "UPDATE employees SET password = ?, is_first_login = 0 WHERE id = ? OR nip = ?"
-    )
-      .bind(newPassword, userId || "", nip || "")
-      .run()
+    let query = "UPDATE employees SET password = ?, is_first_login = 0 WHERE id = ?"
+    let param = userId
+    if (!userId && nip) {
+      query = "UPDATE employees SET password = ?, is_first_login = 0 WHERE nip = ?"
+      param = nip
+    }
+
+    const res = await c.env.DB.prepare(query).bind(newPassword, param).run()
     if (!res.success) {
       return c.json({ error: "Gagal memperbarui kata sandi" }, 500)
     }
@@ -254,19 +257,25 @@ app.post("/api/sync/:key", async (c) => {
     }
 
     if (key === "departments" && Array.isArray(data)) {
-      const stmts = data.map((d) =>
+      const deleteStmt = c.env.DB.prepare("DELETE FROM departments")
+      const insertStmts = data.map((d) =>
         c.env.DB.prepare(
-          "INSERT OR REPLACE INTO departments (id, name, supervisor_id) VALUES (?, ?, ?)"
+          "INSERT INTO departments (id, name, supervisor_id) VALUES (?, ?, ?)"
         ).bind(d.id, d.name, d.supervisorId || null)
       )
-      if (stmts.length > 0) await c.env.DB.batch(stmts)
-      return c.json({ success: true, count: stmts.length })
+      if (insertStmts.length > 0) {
+        await c.env.DB.batch([deleteStmt, ...insertStmts])
+      } else {
+        await deleteStmt.run()
+      }
+      return c.json({ success: true, count: insertStmts.length })
     }
 
     if (key === "shifts" && Array.isArray(data)) {
-      const stmts = data.map((s) =>
+      const deleteStmt = c.env.DB.prepare("DELETE FROM shifts")
+      const insertStmts = data.map((s) =>
         c.env.DB.prepare(
-          "INSERT OR REPLACE INTO shifts (id, name, start_time, end_time, color, duration_hours, is_overnight) VALUES (?, ?, ?, ?, ?, ?, ?)"
+          "INSERT INTO shifts (id, name, start_time, end_time, color, duration_hours, is_overnight) VALUES (?, ?, ?, ?, ?, ?, ?)"
         ).bind(
           s.id,
           s.name,
@@ -277,14 +286,19 @@ app.post("/api/sync/:key", async (c) => {
           s.isOvernight ? 1 : 0
         )
       )
-      if (stmts.length > 0) await c.env.DB.batch(stmts)
-      return c.json({ success: true, count: stmts.length })
+      if (insertStmts.length > 0) {
+        await c.env.DB.batch([deleteStmt, ...insertStmts])
+      } else {
+        await deleteStmt.run()
+      }
+      return c.json({ success: true, count: insertStmts.length })
     }
 
     if (key === "employees" && Array.isArray(data)) {
-      const stmts = data.map((e) =>
+      const deleteStmt = c.env.DB.prepare("DELETE FROM employees")
+      const insertStmts = data.map((e) =>
         c.env.DB.prepare(
-          `INSERT OR REPLACE INTO employees 
+          `INSERT INTO employees 
           (id, nip, name, email, posisi, jabatan, department_id, role, annual_leave_quota, used_leave, phone, join_date, is_active, password, is_first_login)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
         ).bind(
@@ -305,14 +319,19 @@ app.post("/api/sync/:key", async (c) => {
           e.isFirstLogin ? 1 : 0
         )
       )
-      if (stmts.length > 0) await c.env.DB.batch(stmts)
-      return c.json({ success: true, count: stmts.length })
+      if (insertStmts.length > 0) {
+        await c.env.DB.batch([deleteStmt, ...insertStmts])
+      } else {
+        await deleteStmt.run()
+      }
+      return c.json({ success: true, count: insertStmts.length })
     }
 
     if (key === "schedules" && Array.isArray(data)) {
-      const stmts = data.map((sc) =>
+      const deleteStmt = c.env.DB.prepare("DELETE FROM schedules")
+      const insertStmts = data.map((sc) =>
         c.env.DB.prepare(
-          "INSERT OR REPLACE INTO schedules (id, employee_id, department_id, shift_id, date, status, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)"
+          "INSERT INTO schedules (id, employee_id, department_id, shift_id, date, status, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)"
         ).bind(
           sc.id,
           sc.employeeId,
@@ -323,14 +342,19 @@ app.post("/api/sync/:key", async (c) => {
           sc.createdBy || "system"
         )
       )
-      if (stmts.length > 0) await c.env.DB.batch(stmts)
-      return c.json({ success: true, count: stmts.length })
+      if (insertStmts.length > 0) {
+        await c.env.DB.batch([deleteStmt, ...insertStmts])
+      } else {
+        await deleteStmt.run()
+      }
+      return c.json({ success: true, count: insertStmts.length })
     }
 
     if (key === "attendance" && Array.isArray(data)) {
-      const stmts = data.map((a) =>
+      const deleteStmt = c.env.DB.prepare("DELETE FROM attendance")
+      const insertStmts = data.map((a) =>
         c.env.DB.prepare(
-          `INSERT OR REPLACE INTO attendance 
+          `INSERT INTO attendance 
           (id, employee_id, schedule_id, date, clock_in_time, clock_out_time, photo_base64, location, status, total_hours, overtime_hours)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
         ).bind(
@@ -347,14 +371,19 @@ app.post("/api/sync/:key", async (c) => {
           a.overtimeHours || null
         )
       )
-      if (stmts.length > 0) await c.env.DB.batch(stmts)
-      return c.json({ success: true, count: stmts.length })
+      if (insertStmts.length > 0) {
+        await c.env.DB.batch([deleteStmt, ...insertStmts])
+      } else {
+        await deleteStmt.run()
+      }
+      return c.json({ success: true, count: insertStmts.length })
     }
 
     if (key === "leaves" && Array.isArray(data)) {
-      const stmts = data.map((l) =>
+      const deleteStmt = c.env.DB.prepare("DELETE FROM leaves")
+      const insertStmts = data.map((l) =>
         c.env.DB.prepare(
-          `INSERT OR REPLACE INTO leaves 
+          `INSERT INTO leaves 
           (id, employee_id, supervisor_id, department_id, type, start_date, end_date, total_days, reason, attachment_base64, status, review_note, created_at, reviewed_at)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
         ).bind(
@@ -374,14 +403,19 @@ app.post("/api/sync/:key", async (c) => {
           l.reviewedAt || null
         )
       )
-      if (stmts.length > 0) await c.env.DB.batch(stmts)
-      return c.json({ success: true, count: stmts.length })
+      if (insertStmts.length > 0) {
+        await c.env.DB.batch([deleteStmt, ...insertStmts])
+      } else {
+        await deleteStmt.run()
+      }
+      return c.json({ success: true, count: insertStmts.length })
     }
 
     if (key === "swaps" && Array.isArray(data)) {
-      const stmts = data.map((sw) =>
+      const deleteStmt = c.env.DB.prepare("DELETE FROM swaps")
+      const insertStmts = data.map((sw) =>
         c.env.DB.prepare(
-          `INSERT OR REPLACE INTO swaps 
+          `INSERT INTO swaps 
           (id, requester_id, target_id, requester_date, target_date, requester_shift_id, target_shift_id, reason, department_id, peer_status, supervisor_status, created_at)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
         ).bind(
@@ -399,8 +433,12 @@ app.post("/api/sync/:key", async (c) => {
           sw.createdAt
         )
       )
-      if (stmts.length > 0) await c.env.DB.batch(stmts)
-      return c.json({ success: true, count: stmts.length })
+      if (insertStmts.length > 0) {
+        await c.env.DB.batch([deleteStmt, ...insertStmts])
+      } else {
+        await deleteStmt.run()
+      }
+      return c.json({ success: true, count: insertStmts.length })
     }
 
     return c.json({ error: `Key '${key}' tidak dikenali` }, 400)
