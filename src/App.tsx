@@ -1,5 +1,7 @@
+import { useEffect } from "react"
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import { ThemeProvider } from "@/contexts/ThemeContext"
+import { fetchAllFromD1 } from "@/api/client"
 
 // Auth pages
 import { LoginPage }          from "@/pages/LoginPage"
@@ -36,14 +38,32 @@ import { SupervisorSwapApprovalsPage }  from "@/pages/supervisor/SupervisorSwapA
 import { SupervisorLeaveApprovalsPage } from "@/pages/supervisor/SupervisorLeaveApprovalsPage"
 import { SupervisorUnitReportsPage }    from "@/pages/supervisor/SupervisorUnitReportsPage"
 
-import { useEffect } from "react"
-import { syncFromRemote } from "@/api/client"
+// Public Landing Page
 import { LandingPage } from "@/pages/LandingPage"
 
 function App() {
   useEffect(() => {
-    // Sinkronisasi data realtime dari Cloudflare D1 saat web dibuka
-    syncFromRemote()
+    fetchAllFromD1().then((res) => {
+      if (res.success && res.data) {
+        const d = res.data
+        const syncKeys: Record<string, any> = {
+          departments: d.departments,
+          shifts: d.shifts,
+          employees: d.employees,
+          schedules: d.schedules,
+          attendance: d.attendance,
+          leaves: d.leaves,
+          swaps: d.swaps,
+          app_settings: d.app_settings,
+        }
+        Object.entries(syncKeys).forEach(([k, val]) => {
+          if (val !== undefined && val !== null) {
+            localStorage.setItem(k, JSON.stringify(val))
+            window.dispatchEvent(new CustomEvent("local-storage-sync", { detail: { key: k } }))
+          }
+        })
+      }
+    })
   }, [])
 
   return (

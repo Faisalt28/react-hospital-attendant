@@ -1,72 +1,56 @@
-/**
- * RS MediTrack: Cloudflare Workers & D1 API Client
- */
+// Konfigurasi URL backend Cloudflare Workers
+// Jika environment variable VITE_API_BASE_URL diset di Cloudflare Pages, gunakan itu.
+// Default fallback ke URL worker produksi.
 
-// URL Backend Cloudflare Worker Anda (bisa diset via env VITE_API_URL atau fallback)
-export const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "https://rs-meditrack-api.workers.dev"
+export const API_BASE_URL: string =
+  (import.meta.env.VITE_API_BASE_URL as string) ||
+  "https://rs-meditrack-api.faisal-artupairt28.workers.dev"
 
-/**
- * Memuat data awal dari Cloudflare D1 ke dalam browser
- */
-export async function syncFromRemote(): Promise<boolean> {
-  if (!API_BASE_URL || API_BASE_URL.includes("workers.dev") === false) {
-    return false
+export interface SyncResponse {
+  success: boolean
+  data?: {
+    departments: any[]
+    shifts: any[]
+    employees: any[]
+    schedules: any[]
+    attendance: any[]
+    leaves: any[]
+    swaps: any[]
+    app_settings: any
   }
+  error?: string
+}
 
+/**
+ * Unduh seluruh dataset terbaru dari Cloudflare D1
+ */
+export async function fetchAllFromD1(): Promise<SyncResponse> {
   try {
     const res = await fetch(`${API_BASE_URL}/api/sync`, {
-      headers: { Accept: "application/json" },
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
     })
-
-    if (!res.ok) return false
-
-    const json = await res.json()
-    if (json.success && json.data) {
-      const {
-        departments,
-        shifts,
-        employees,
-        schedules,
-        attendance,
-        leaves,
-        swaps,
-        app_settings,
-      } = json.data
-
-      if (departments?.length) localStorage.setItem("departments", JSON.stringify(departments))
-      if (shifts?.length) localStorage.setItem("shifts", JSON.stringify(shifts))
-      if (employees?.length) localStorage.setItem("employees", JSON.stringify(employees))
-      if (schedules) localStorage.setItem("schedules", JSON.stringify(schedules))
-      if (attendance) localStorage.setItem("attendance", JSON.stringify(attendance))
-      if (leaves) localStorage.setItem("leaves", JSON.stringify(leaves))
-      if (swaps) localStorage.setItem("swaps", JSON.stringify(swaps))
-      if (app_settings) localStorage.setItem("app_settings", JSON.stringify(app_settings))
-
-      return true
-    }
-    return false
-  } catch (err) {
-    console.warn("[Cloudflare D1 Sync] Gagal sinkronisasi data remote:", err)
-    return false
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    return await res.json()
+  } catch (err: any) {
+    console.warn("[D1 Client] Gagal fetch data dari Cloudflare D1:", err.message)
+    return { success: false, error: err.message }
   }
 }
 
 /**
- * Mengirim perubahan data dari browser ke Cloudflare D1 secara background
+ * Kirim perubahan entitas (departments, employees, dsb) secara asynchronous ke Cloudflare D1
  */
-export async function syncToRemote(key: string, data: any): Promise<void> {
-  if (!API_BASE_URL || API_BASE_URL.includes("workers.dev") === false) {
-    return
-  }
-
+export async function pushSyncToD1(key: string, data: any): Promise<boolean> {
   try {
-    await fetch(`${API_BASE_URL}/api/sync/${key}`, {
+    const res = await fetch(`${API_BASE_URL}/api/sync/${key}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     })
-  } catch (err) {
-    console.warn(`[Cloudflare D1 Sync] Gagal push data untuk ${key}:`, err)
+    return res.ok
+  } catch (err: any) {
+    console.warn(`[D1 Client] Background sync failed for ${key}:`, err.message)
+    return false
   }
 }

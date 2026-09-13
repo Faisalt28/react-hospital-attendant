@@ -2,104 +2,112 @@ import { Hono } from "hono"
 import { cors } from "hono/cors"
 
 type Bindings = {
-  DB: any // Cloudflare D1 Database binding
+  DB: D1Database
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
 
-// Enable CORS for frontend
+// Enable CORS for frontend web app (Cloudflare Pages, localhost, etc.)
 app.use(
   "/*",
   cors({
     origin: "*",
-    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
   })
 )
 
-// Health check
+// Health Check
 app.get("/", (c) => {
-  return c.json({ status: "ok", service: "RS MediTrack Cloudflare API (D1)" })
-})
-
-app.get("/api/health", (c) => {
-  return c.json({ status: "healthy", timestamp: new Date().toISOString() })
+  return c.json({
+    status: "online",
+    service: "RS MediTrack Cloudflare API",
+    version: "1.0.0",
+    timestamp: new Date().toISOString(),
+  })
 })
 
 // ─── AUTH ─────────────────────────────────────────────────────────────────────
 
+// Login (Verifikasi NIP & Password langsung dari D1)
 app.post("/api/auth/login", async (c) => {
   try {
     const { nip, password } = await c.req.json()
     if (!nip || !password) {
-      return c.json({ error: "NIP dan password wajib diisi" }, 400)
+      return c.json({ error: "NIP dan kata sandi wajib diisi" }, 400)
     }
 
-    const emp: any = await c.env.DB.prepare(
+    const employee = await c.env.DB.prepare(
       "SELECT * FROM employees WHERE nip = ? AND is_active = 1"
     )
-      .bind(nip)
-      .first()
+      .bind(nip.trim())
+      .first<any>()
 
-    if (!emp) {
-      return c.json({ error: "NIP tidak ditemukan atau akun tidak aktif" }, 401)
+    if (!employee) {
+      return c.json({ error: "NIP tidak terdaftar atau akun tidak aktif" }, 401)
     }
 
-    if (emp.password !== password) {
-      return c.json({ error: "Password salah. Silakan coba lagi." }, 401)
+    if (employee.password !== password) {
+      return c.json({ error: "Kata sandi salah" }, 401)
     }
 
-    const { password: _p, ...userSafe } = emp
+    // Format employee data according to frontend Employee type
+    const user = {
+      id: employee.id,
+      nip: employee.nip,
+      name: employee.name,
+      email: employee.email,
+      posisi: employee.posisi,
+      jabatan: employee.jabatan,
+      departmentId: employee.department_id,
+      role: employee.role,
+      annualLeaveQuota: employee.annual_leave_quota,
+      usedLeave: employee.used_leave,
+      phone: employee.phone,
+      joinDate: employee.join_date,
+      isActive: Boolean(employee.is_active),
+      isFirstLogin: Boolean(employee.is_first_login),
+    }
+
     return c.json({
       success: true,
-      user: {
-        ...userSafe,
-        isActive: Boolean(userSafe.is_active),
-        isFirstLogin: Boolean(userSafe.is_first_login),
-        departmentId: userSafe.department_id,
-        annualLeaveQuota: userSafe.annual_leave_quota,
-        usedLeave: userSafe.used_leave,
-        joinDate: userSafe.join_date,
-      },
+      user,
+      token: `tok_${employee.id}_${Date.now()}`,
     })
   } catch (err: any) {
     return c.json({ error: err.message }, 500)
   }
 })
 
+// Change Password (Update di D1 dan hilangkan flag is_first_login)
 app.post("/api/auth/change-password", async (c) => {
   try {
-    const { nip, currentPassword, newPassword } = await c.req.json()
-    if (!nip || !currentPassword || !newPassword) {
-      return c.json({ error: "Data ganti password tidak lengkap" }, 400)
+    const { userId, nip, newPassword } = await c.req.json()
+    if (!newPassword || newPassword.length < 8) {
+      return c.json({ error: "Password baru minimal 8 karakter" }, 400)
     }
 
-    const emp: any = await c.env.DB.prepare("SELECT * FROM employees WHERE nip = ?")
-      .bind(nip)
-      .first()
-
-    if (!emp) {
-      return c.json({ error: "Pegawai tidak ditemukan" }, 404)
+    let query = "UPDATE employees SET password = ?, is_first_login = 0 WHERE id = ?"
+    let param = userId
+    if (!userId && nip) {
+      query = "UPDATE employees SET password = ?, is_first_login = 0 WHERE nip = ?"
+      param = nip
     }
 
-    if (emp.password !== currentPassword) {
-      return c.json({ error: "Password lama tidak sesuai" }, 400)
+    const res = await c.env.DB.prepare(query).bind(newPassword, param).run()
+    if (!res.success) {
+      return c.json({ error: "Gagal memperbarui kata sandi" }, 500)
     }
 
-    await c.env.DB.prepare(
-      "UPDATE employees SET password = ?, is_first_login = 0 WHERE nip = ?"
-    )
-      .bind(newPassword, nip)
-      .run()
-
-    return c.json({ success: true, message: "Password berhasil diperbarui" })
+    return c.json({ success: true, message: "Kata sandi berhasil diperbarui" })
   } catch (err: any) {
     return c.json({ error: err.message }, 500)
   }
 })
 
-// ─── FULL SYNC (Hydrate frontend on initial load) ────────────────────────────
+// ─── FULL DATA SYNC (PULL) ───────────────────────────────────────────────────
 
+// Unduh seluruh data D1 ke state frontend
 app.get("/api/sync", async (c) => {
   try {
     const [
@@ -119,7 +127,7 @@ app.get("/api/sync", async (c) => {
       c.env.DB.prepare("SELECT * FROM attendance").all(),
       c.env.DB.prepare("SELECT * FROM leaves").all(),
       c.env.DB.prepare("SELECT * FROM swaps").all(),
-      c.env.DB.prepare("SELECT * FROM app_settings WHERE key = 'app_settings'").first() as Promise<any>,
+      c.env.DB.prepare("SELECT value FROM app_settings WHERE key = 'app_settings'").first<{ value: string }>(),
     ])
 
     const departments = (departmentsRes.results || []).map((d: any) => ({

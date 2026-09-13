@@ -84,7 +84,7 @@ export function useLocalStorage<T>(key: string, defaultValue: T) {
             // Broadcast ke seluruh hook useLocalStorage yang mendengarkan key ini
             window.dispatchEvent(new CustomEvent(SYNC_EVENT, { detail: { key } }))
 
-            // Background sync ke Cloudflare D1
+            // Asynchronous push to Cloudflare Workers & D1 database
             const SYNC_KEYS = [
               "app_settings",
               "employees",
@@ -96,8 +96,8 @@ export function useLocalStorage<T>(key: string, defaultValue: T) {
               "swaps",
             ]
             if (SYNC_KEYS.includes(key)) {
-              import("@/api/client").then(({ syncToRemote }) => {
-                syncToRemote(key, nextValue)
+              import("@/api/client").then(({ pushSyncToD1 }) => {
+                pushSyncToD1(key, nextValue)
               })
             }
           }, 0)

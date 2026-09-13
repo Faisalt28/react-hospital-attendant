@@ -1,9 +1,9 @@
 name = "rs-meditrack-api"
 main = "src/index.ts"
-compatibility_date = "2024-09-01"
+compatibility_date = "2024-09-23"
 
-# Cloudflare D1 Database Binding
+# Binding database Cloudflare D1
 [[d1_databases]]
 binding = "DB"
 database_name = "rs-meditrack-db"
-database_id = "ISI_DENGAN_DATABASE_ID_DARI_WRANGLER"
+database_id = "ISI_DENGAN_DATABASE_ID_DARI_CLOUDFLARE"

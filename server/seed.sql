@@ -1,12 +1,13 @@
 -- ================================================================
 -- RS MediTrack: Initial Seed Data for Cloudflare D1
+-- (Khusus 1 Departemen HRD dan 1 Akun Admin HRD)
 -- ================================================================
 
--- Default Department
+-- 1. Departemen HRD saja
 INSERT OR REPLACE INTO departments (id, name, supervisor_id)
-VALUES ('dept-hrd', 'HRD & Personalia', 'emp-1');
+VALUES ('dept-hrd', 'HRD & Personalia', 'emp-admin-1');
 
--- Default Shifts
+-- 2. Master Pola Sif Dasar
 INSERT OR REPLACE INTO shifts (id, name, start_time, end_time, color, duration_hours, is_overnight)
 VALUES 
   ('shift-1', 'Shift Pagi', '07:00', '15:00', 'blue', 8.0, 0),
@@ -14,12 +15,12 @@ VALUES
   ('shift-3', 'Shift Malam', '21:00', '07:00', 'indigo', 10.0, 1),
   ('shift-4', 'On-Call', '00:00', '00:00', 'green', 0.0, 0);
 
--- Default Admin HRD User (password: RS-2026, wajib ganti password di login pertama)
+-- 3. 1 Akun Admin HRD saja (NIP: HRD-2020-001, Password awal: RS-2026)
 INSERT OR REPLACE INTO employees (
   id, nip, name, email, posisi, jabatan, department_id, role,
   annual_leave_quota, used_leave, phone, join_date, is_active, password, is_first_login
 ) VALUES (
-  'emp-1',
+  'emp-admin-1',
   'HRD-2020-001',
   'Admin HRD',
   'admin@rsmeditrack.com',
@@ -36,6 +37,9 @@ INSERT OR REPLACE INTO employees (
   1
 );
 
--- Default App Settings
+-- 4. Pengaturan Sistem Awal (Geofencing & Aturan Toleransi)
 INSERT OR REPLACE INTO app_settings (key, value)
-VALUES ('app_settings', '{"hospitalName":"RSUD MediTrack Utama","address":"Jl. Kesehatan Raya No. 45, Jakarta Pusat","latitude":-6.2088,"longitude":106.8456,"geofenceRadiusMeters":100,"blockOutsideGeofence":true,"antiFakeGps":true,"lateToleranceMinutes":15,"earlyClockInMinutes":60,"maxClockOutMinutes":120,"requireSelfie":true,"requireHighAccuracyGps":true,"notifySupervisorOnLate":true}');
+VALUES (
+  'app_settings',
+  '{"hospitalName":"RSUD MediTrack Utama","address":"Jl. Kesehatan Raya No. 45, Jakarta Pusat","latitude":-6.2088,"longitude":106.8456,"geofenceRadiusMeters":100,"blockOutsideGeofence":true,"antiFakeGps":true,"lateToleranceMinutes":15,"earlyClockInMinutes":60,"maxClockOutMinutes":120,"requireSelfie":true,"requireHighAccuracyGps":true,"notifySupervisorOnLate":true}'
+);
