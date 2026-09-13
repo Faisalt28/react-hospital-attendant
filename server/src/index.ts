@@ -87,14 +87,11 @@ app.post("/api/auth/change-password", async (c) => {
       return c.json({ error: "Password baru minimal 8 karakter" }, 400)
     }
 
-    let query = "UPDATE employees SET password = ?, is_first_login = 0 WHERE id = ?"
-    let param = userId
-    if (!userId && nip) {
-      query = "UPDATE employees SET password = ?, is_first_login = 0 WHERE nip = ?"
-      param = nip
-    }
-
-    const res = await c.env.DB.prepare(query).bind(newPassword, param).run()
+    const res = await c.env.DB.prepare(
+      "UPDATE employees SET password = ?, is_first_login = 0 WHERE id = ? OR nip = ?"
+    )
+      .bind(newPassword, userId || "", nip || "")
+      .run()
     if (!res.success) {
       return c.json({ error: "Gagal memperbarui kata sandi" }, 500)
     }

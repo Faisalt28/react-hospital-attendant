@@ -67,7 +67,12 @@ const ChangePasswordPage = () => {
     setIsLoading(true)
     
     // 1. Update password di Cloudflare D1
-    await changePasswordViaD1(user.id, user.nip, newPassword)
+    const res = await changePasswordViaD1(user.id, user.nip, newPassword)
+    if (!res.ok) {
+      setError(res.error || res.data?.error || "Gagal memperbarui password di server Cloudflare.")
+      setIsLoading(false)
+      return
+    }
 
     // 2. Update employee password di localStorage
     let employees: Employee[] = []
