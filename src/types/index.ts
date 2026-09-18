@@ -51,7 +51,9 @@ export interface AttendanceRecord {
   date: string          // "2025-09-10"
   clockInTime?: string  // "07:05"
   clockOutTime?: string
-  photoBase64?: string  // selfie sebagai base64
+  photoBase64?: string     // selfie masuk (legacy fallback)
+  photoInBase64?: string   // selfie jam masuk
+  photoOutBase64?: string  // selfie jam pulang
   location: "inside" | "outside"
   status: AttendanceStatus
   totalHours?: number

@@ -4,11 +4,11 @@ import {
   Clock, X, MessageSquare, Calendar,
 } from "lucide-react"
 import { useLocalStorage } from "@/hooks/useLocalStorage"
-import { SEED_LEAVES, SEED_EMPLOYEES, SEED_DEPARTMENTS } from "@/data/seed"
+import { SEED_LEAVES, SEED_EMPLOYEES, SEED_DEPARTMENTS, SEED_SCHEDULES } from "@/data/seed"
 import {
   Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
 } from "@/components/ui/cnippet-table"
-import type { LeaveRequest, ApprovalStatus, LeaveType } from "@/types"
+import type { LeaveRequest, ApprovalStatus, LeaveType, Schedule } from "@/types"
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
@@ -117,6 +117,7 @@ const LeavePage = () => {
   const [leaves,      setLeaves]      = useLocalStorage("leaves",      SEED_LEAVES)
   const [employees,   setEmployees]   = useLocalStorage("employees",   SEED_EMPLOYEES)
   const [departments]                 = useLocalStorage("departments", SEED_DEPARTMENTS)
+  const [,            setSchedules]   = useLocalStorage<Schedule[]>("schedules", SEED_SCHEDULES)
 
   const [search,       setSearch]       = useState("")
   const [filterDept,   setFilterDept]   = useState("")
@@ -160,6 +161,20 @@ const LeavePage = () => {
           : emp
       ))
     }
+    // Mark schedule as leave for those dates
+    setSchedules(prev => {
+      const updated = [...prev]
+      const start = new Date(selected.startDate)
+      const end = new Date(selected.endDate)
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        const dateStr = d.toISOString().split("T")[0]
+        const idx = updated.findIndex(s => s.employeeId === selected.employeeId && s.date === dateStr)
+        if (idx >= 0) {
+          updated[idx] = { ...updated[idx], status: "leave" }
+        }
+      }
+      return updated
+    })
     setSelected(null)
   }
   const handleReject = (note: string) => {

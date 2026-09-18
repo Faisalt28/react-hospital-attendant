@@ -21,7 +21,7 @@ export const EmployeeSchedulePage = () => {
   const currentEmp = employees.find((e) => e.id === userSession?.id || e.nip === userSession?.nip) || employees[2]
   const dept = departments.find((d) => d.id === currentEmp?.departmentId)
 
-  const [selectedMonth, setSelectedMonth] = useState("2025-09")
+  const [selectedMonth, setSelectedMonth] = useState(() => new Date().toISOString().slice(0, 7))
   const [viewMode, setViewMode] = useState<"list" | "calendar">("list")
 
   // Filter my schedules for selected month

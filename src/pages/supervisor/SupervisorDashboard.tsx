@@ -81,13 +81,29 @@ export const SupervisorDashboard = () => {
   const todayStr = new Date().toISOString().split("T")[0]
   const todayDisplay = new Date().toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
 
+  // Cuti aktif supervisor hari ini (yang di-ACC)
+  const myActiveLeave = useMemo(() => {
+    return leaves.find(
+      (l) =>
+        l.employeeId === currentSupervisor?.id &&
+        l.status === "approved" &&
+        todayStr >= l.startDate &&
+        todayStr <= l.endDate
+    )
+  }, [leaves, currentSupervisor?.id, todayStr])
+
   // Supervisor's own schedule & attendance today
   const myTodaySchedule = useMemo(() => {
     return schedules.find((s) => s.employeeId === currentSupervisor?.id && s.date === todayStr)
   }, [schedules, currentSupervisor, todayStr])
 
+  const isMySchedulePublished = myTodaySchedule ? myTodaySchedule.status === "published" : false
+  const isMyScheduleLeave = myTodaySchedule?.status === "leave" || !!myActiveLeave
+  const hasMyValidSchedule = !!myTodaySchedule && isMySchedulePublished && !isMyScheduleLeave
+
   const myTodayShift = useMemo(() => {
-    return shifts.find((sh) => sh.id === myTodaySchedule?.shiftId) || shifts[0] || { name: "Shift Reguler", startTime: "08:00", endTime: "16:00", durationHours: 8 }
+    if (!myTodaySchedule) return null
+    return shifts.find((sh) => sh.id === myTodaySchedule.shiftId) || null
   }, [shifts, myTodaySchedule])
 
   const myTodayAttendance = useMemo(() => {
@@ -221,7 +237,13 @@ export const SupervisorDashboard = () => {
 
             <div className="text-xs text-gray-600 dark:text-gray-300 flex flex-wrap items-center gap-2 sm:gap-3">
               <span>
-                Sif Hari Ini: <strong className="text-emerald-700 dark:text-emerald-400">{myTodayShift?.name} ({myTodayShift?.startTime} – {myTodayShift?.endTime})</strong>
+                Sif Hari Ini: <strong className="text-emerald-700 dark:text-emerald-400">
+                  {isMyScheduleLeave
+                    ? `Bebas Dinas (${myActiveLeave?.type ? myActiveLeave.type.toUpperCase() : "CUTI"})`
+                    : !hasMyValidSchedule
+                    ? "Belum Ada Jadwal Dinas"
+                    : `${myTodayShift?.name} (${myTodayShift?.startTime} – ${myTodayShift?.endTime})`}
+                </strong>
               </span>
               <span className="hidden sm:inline">•</span>
               <span className="flex items-center gap-1">
@@ -243,7 +265,31 @@ export const SupervisorDashboard = () => {
 
           {/* Quick Action Button for Clock-In / Clock-Out */}
           <div className="flex flex-wrap items-center gap-3 shrink-0 w-full sm:w-auto">
-            {!myTodayAttendance?.clockInTime ? (
+            {isMyScheduleLeave ? (
+              <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl sm:rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-xs w-full sm:w-auto">
+                <CheckCircle2 className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                <div>
+                  <p className="font-bold text-amber-900 dark:text-amber-200">Sedang Bebas Dinas (Cuti Disetujui)</p>
+                  <p className="text-[10px] text-amber-700 dark:text-amber-400">
+                    Periode cuti: {myActiveLeave?.startDate || todayStr} s/d {myActiveLeave?.endDate || todayStr}
+                  </p>
+                </div>
+              </div>
+            ) : !hasMyValidSchedule ? (
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+                <div className="px-3.5 py-2 rounded-xl sm:rounded-2xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-amber-500" />
+                  <span>Jadwal Anda belum diatur</span>
+                </div>
+                <button
+                  onClick={() => navigate("/supervisor/roster")}
+                  className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl sm:rounded-2xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                >
+                  <CalendarDays className="w-3.5 h-3.5" />
+                  <span>Atur Roster Dinas</span>
+                </button>
+              </div>
+            ) : !myTodayAttendance?.clockInTime ? (
               <button
                 onClick={() => {
                   setModalType("clock-in")
@@ -542,10 +588,10 @@ export const SupervisorDashboard = () => {
         isOpen={isAttendanceModalOpen}
         onClose={() => setIsAttendanceModalOpen(false)}
         type={modalType}
-        employeeId={currentSupervisor?.id}
-        shiftName={myTodayShift?.name}
-        shiftStartTime={myTodayShift?.startTime}
-        shiftEndTime={myTodayShift?.endTime}
+        employeeId={currentSupervisor?.id || "emp-1"}
+        shiftName={myTodayShift?.name || "Shift Kerja"}
+        shiftStartTime={myTodayShift?.startTime || "07:00"}
+        shiftEndTime={myTodayShift?.endTime || "15:00"}
         existingRecord={myTodayAttendance}
       />
     </div>

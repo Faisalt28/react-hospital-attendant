@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react"
-import { ClipboardList, Search, ChevronDown, ArrowUpDown, ArrowUp, ArrowDown, X } from "lucide-react"
+import { ClipboardList, Search, ChevronDown, ArrowUpDown, ArrowUp, ArrowDown, X, Camera } from "lucide-react"
 import { useLocalStorage } from "@/hooks/useLocalStorage"
 import { SEED_ATTENDANCE, SEED_EMPLOYEES, SEED_DEPARTMENTS } from "@/data/seed"
 import {
@@ -71,6 +71,7 @@ const AttendancePage = () => {
   })
   const [sortKey,     setSortKey]     = useState<SortKey>("date")
   const [sortDir,     setSortDir]     = useState<SortDir>("desc")
+  const [previewPhoto, setPreviewPhoto] = useState<{ url: string; title: string; time?: string } | null>(null)
 
   // Fast lookups
   const empMap = useMemo(() => new Map(employees.map(e => [e.id, e])), [employees])
@@ -198,18 +199,22 @@ const AttendancePage = () => {
               <ThSort k="totalHours"  label="Durasi"    sortKey={sortKey} sortDir={sortDir} onToggle={toggleSort} align="right" />
               <ThSort k="status"      label="Status"    sortKey={sortKey} sortDir={sortDir} onToggle={toggleSort} />
               <TableHead className="hidden sm:table-cell">Lokasi</TableHead>
+              <TableHead className="text-center">Foto Selfie</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-12">
+                <TableCell colSpan={9} className="text-center py-12">
                   <ClipboardList className="h-10 w-10 text-gray-300 dark:text-gray-700 mx-auto mb-3" />
                   <p className="text-gray-400">Tidak ada data kehadiran</p>
                 </TableCell>
               </TableRow>
             ) : filtered.map(rec => {
               const statusCfg = STATUS_CONFIG[rec.status]
+              const photoIn = rec.photoInBase64 || rec.photoBase64
+              const photoOut = rec.photoOutBase64
+
               return (
                 <TableRow key={rec.id}>
                   <TableCell className="font-medium text-gray-900 dark:text-gray-100 whitespace-nowrap">
@@ -237,6 +242,33 @@ const AttendancePage = () => {
                       {rec.location === "inside" ? "✓ Dalam RS" : "✗ Luar RS"}
                     </span>
                   </TableCell>
+                  <TableCell className="text-center">
+                    <div className="flex items-center justify-center gap-1.5">
+                      {photoIn ? (
+                        <button
+                          type="button"
+                          onClick={() => setPreviewPhoto({ url: photoIn, title: `Foto Masuk: ${rec.empName}`, time: rec.clockInTime })}
+                          className="px-2 py-1 rounded-lg bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 text-blue-600 dark:text-blue-400 text-xs flex items-center gap-1 cursor-pointer font-medium"
+                          title="Lihat Foto Masuk"
+                        >
+                          <Camera className="h-3.5 w-3.5" />
+                          <span className="hidden xl:inline text-[11px]">Masuk</span>
+                        </button>
+                      ) : null}
+                      {photoOut ? (
+                        <button
+                          type="button"
+                          onClick={() => setPreviewPhoto({ url: photoOut, title: `Foto Pulang: ${rec.empName}`, time: rec.clockOutTime })}
+                          className="px-2 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 text-emerald-600 dark:text-emerald-400 text-xs flex items-center gap-1 cursor-pointer font-medium"
+                          title="Lihat Foto Pulang"
+                        >
+                          <Camera className="h-3.5 w-3.5" />
+                          <span className="hidden xl:inline text-[11px]">Pulang</span>
+                        </button>
+                      ) : null}
+                      {!photoIn && !photoOut && <span className="text-gray-400 text-xs">—</span>}
+                    </div>
+                  </TableCell>
                 </TableRow>
               )
             })}
@@ -249,6 +281,31 @@ const AttendancePage = () => {
           </p>
         </div>
       </div>
+
+      {/* ── Photo Preview Modal ── */}
+      {previewPhoto && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setPreviewPhoto(null)} />
+          <div className="relative bg-white dark:bg-gray-900 rounded-3xl overflow-hidden max-w-sm w-full border border-gray-200 dark:border-gray-800 p-4 space-y-3">
+            <div className="flex justify-between items-center">
+              <div>
+                <h4 className="text-xs font-bold text-gray-900 dark:text-gray-100">{previewPhoto.title}</h4>
+                {previewPhoto.time && (
+                  <p className="text-[11px] text-gray-500 dark:text-gray-400">Pukul {previewPhoto.time} WIB</p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setPreviewPhoto(null)}
+                className="text-xs font-semibold text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 cursor-pointer"
+              >
+                Tutup
+              </button>
+            </div>
+            <img src={previewPhoto.url} alt={previewPhoto.title} className="w-full aspect-square object-cover rounded-2xl" />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

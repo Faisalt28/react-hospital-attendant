@@ -240,6 +240,7 @@ export const AttendanceModal = ({
           date: todayDate,
           clockInTime: currentTimeStr,
           photoBase64: photo ?? undefined,
+          photoInBase64: photo ?? undefined,
           location: isInsideGeofence ? "inside" : "outside",
           status: calculatedStatus,
         }
@@ -257,6 +258,7 @@ export const AttendanceModal = ({
               return {
                 ...a,
                 clockOutTime: currentTimeStr,
+                photoOutBase64: photo ?? undefined,
                 totalHours: parseFloat(hours.toFixed(1)),
               }
             }
@@ -326,7 +328,7 @@ export const AttendanceModal = ({
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
                     <Camera className="h-3.5 w-3.5 text-blue-500" />
-                    Foto Selfie {settings.requireSelfie ? "(Wajib)" : "(Opsional)"}
+                    Foto Selfie {type === "clock-in" ? "Masuk" : "Pulang"} {settings.requireSelfie ? "(Wajib)" : "(Opsional)"}
                   </label>
                   {photo && (
                     <button

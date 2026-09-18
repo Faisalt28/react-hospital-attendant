@@ -22,8 +22,8 @@ export const EmployeeHistoryPage = () => {
 
   const currentEmp = employees.find((e) => e.id === userSession?.id || e.nip === userSession?.nip) || employees[2]
 
-  const [selectedMonth, setSelectedMonth] = useState("2025-09")
-  const [previewPhoto, setPreviewPhoto]   = useState<string | null>(null)
+  const [selectedMonth, setSelectedMonth] = useState(() => new Date().toISOString().slice(0, 7))
+  const [previewPhoto, setPreviewPhoto]   = useState<{ url: string; title: string; time?: string } | null>(null)
 
   // My attendance records for the selected month
   const myRecords = useMemo(() => {
@@ -85,6 +85,8 @@ export const EmployeeHistoryPage = () => {
             const statusCfg = STATUS_CONFIG[rec.status]
             const dayName = new Date(rec.date).toLocaleDateString("id-ID", { weekday: "long" })
             const dateStr = new Date(rec.date).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })
+            const photoIn = rec.photoInBase64 || rec.photoBase64
+            const photoOut = rec.photoOutBase64
 
             return (
               <div
@@ -119,18 +121,32 @@ export const EmployeeHistoryPage = () => {
                   </div>
                 </div>
 
-                {/* Selfie Photo Preview (if exists) */}
-                {rec.photoBase64 && (
-                  <div className="self-end sm:self-center flex items-center gap-2">
+                {/* Selfie Photo Preview (Masuk & Pulang) */}
+                <div className="self-end sm:self-center flex flex-wrap items-center gap-2">
+                  {photoIn && (
                     <button
-                      onClick={() => setPreviewPhoto(rec.photoBase64!)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 text-xs font-medium text-gray-700 dark:text-gray-300 transition-colors"
+                      type="button"
+                      onClick={() => setPreviewPhoto({ url: photoIn, title: "Foto Selfie Masuk", time: rec.clockInTime })}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-xs font-semibold text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 transition-colors cursor-pointer"
                     >
-                      <Camera className="h-3.5 w-3.5 text-blue-500" />
-                      Lihat Selfie
+                      <Camera className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                      Foto Masuk
                     </button>
-                  </div>
-                )}
+                  )}
+
+                  {photoOut ? (
+                    <button
+                      type="button"
+                      onClick={() => setPreviewPhoto({ url: photoOut, title: "Foto Selfie Pulang", time: rec.clockOutTime })}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-xs font-semibold text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 transition-colors cursor-pointer"
+                    >
+                      <Camera className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                      Foto Pulang
+                    </button>
+                  ) : rec.clockInTime && !rec.clockOutTime ? (
+                    <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">Belum Clock-Out</span>
+                  ) : null}
+                </div>
               </div>
             )
           })
@@ -143,12 +159,21 @@ export const EmployeeHistoryPage = () => {
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setPreviewPhoto(null)} />
           <div className="relative bg-white dark:bg-gray-900 rounded-3xl overflow-hidden max-w-sm w-full border border-gray-200 dark:border-gray-800 p-4 space-y-3">
             <div className="flex justify-between items-center">
-              <h4 className="text-xs font-bold text-gray-900 dark:text-gray-100">Foto Selfie Presensi</h4>
-              <button onClick={() => setPreviewPhoto(null)} className="text-xs text-gray-400 hover:text-gray-600">
+              <div>
+                <h4 className="text-xs font-bold text-gray-900 dark:text-gray-100">{previewPhoto.title}</h4>
+                {previewPhoto.time && (
+                  <p className="text-[11px] text-gray-500 dark:text-gray-400">Pukul {previewPhoto.time} WIB</p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setPreviewPhoto(null)}
+                className="text-xs font-semibold text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 cursor-pointer"
+              >
                 Tutup
               </button>
             </div>
-            <img src={previewPhoto} alt="Selfie" className="w-full aspect-square object-cover rounded-2xl" />
+            <img src={previewPhoto.url} alt={previewPhoto.title} className="w-full aspect-square object-cover rounded-2xl" />
           </div>
         </div>
       )}
