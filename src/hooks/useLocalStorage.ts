@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { pushSyncToD1 } from "@/api/client"
 
 const SYNC_EVENT = "local-storage-sync"
@@ -57,55 +57,60 @@ export function useLocalStorage<T>(key: string, defaultValue: T) {
     }
   }, [key, readValue])
 
+  const dataRef = useRef<T>(data)
+  useEffect(() => {
+    dataRef.current = data
+  }, [data])
+
   const setData = useCallback(
     (value: T | ((prev: T) => T)) => {
-      setDataState((prev) => {
-        const nextValue = typeof value === "function" ? (value as (prev: T) => T)(prev) : value
-        try {
-          localStorage.setItem(key, JSON.stringify(nextValue))
+      const nextValue = typeof value === "function" ? (value as (prev: T) => T)(dataRef.current) : value
+      dataRef.current = nextValue
+      setDataState(nextValue)
 
-          // Sinkronisasi otomatis ke Cloudflare D1
-          if (SYNC_KEYS.includes(key)) {
-            pushSyncToD1(key, nextValue)
-          }
+      try {
+        localStorage.setItem(key, JSON.stringify(nextValue))
 
-          // Defer broadcast agar tidak memicu setState di komponen lain saat render cycle sedang berjalan
-          setTimeout(() => {
-            // Auto-sync session "user" jika data employee yang diedit adalah user yang sedang login
-            if (key === "employees" && Array.isArray(nextValue)) {
-              const rawUser = localStorage.getItem("user")
-              if (rawUser) {
-                try {
-                  const currentUser = JSON.parse(rawUser)
-                  const matchedEmp = nextValue.find((e: any) => e.id === currentUser.id)
-                  if (matchedEmp) {
-                    const updatedUser = {
-                      ...currentUser,
-                      name: matchedEmp.name,
-                      email: matchedEmp.email,
-                      nip: matchedEmp.nip,
-                      role: matchedEmp.role,
-                      posisi: matchedEmp.posisi,
-                      jabatan: matchedEmp.jabatan,
-                      departmentId: matchedEmp.departmentId,
-                    }
-                    localStorage.setItem("user", JSON.stringify(updatedUser))
-                    window.dispatchEvent(new CustomEvent(SYNC_EVENT, { detail: { key: "user" } }))
+        // Sinkronisasi otomatis ke Cloudflare D1
+        if (SYNC_KEYS.includes(key)) {
+          pushSyncToD1(key, nextValue)
+        }
+
+        // Defer broadcast agar tidak memicu setState di komponen lain saat render cycle sedang berjalan
+        setTimeout(() => {
+          // Auto-sync session "user" jika data employee yang diedit adalah user yang sedang login
+          if (key === "employees" && Array.isArray(nextValue)) {
+            const rawUser = localStorage.getItem("user")
+            if (rawUser) {
+              try {
+                const currentUser = JSON.parse(rawUser)
+                const matchedEmp = nextValue.find((e: any) => e.id === currentUser.id)
+                if (matchedEmp) {
+                  const updatedUser = {
+                    ...currentUser,
+                    name: matchedEmp.name,
+                    email: matchedEmp.email,
+                    nip: matchedEmp.nip,
+                    role: matchedEmp.role,
+                    posisi: matchedEmp.posisi,
+                    jabatan: matchedEmp.jabatan,
+                    departmentId: matchedEmp.departmentId,
                   }
-                } catch (err) {
-                  console.error("Error syncing current user", err)
+                  localStorage.setItem("user", JSON.stringify(updatedUser))
+                  window.dispatchEvent(new CustomEvent(SYNC_EVENT, { detail: { key: "user" } }))
                 }
+              } catch (err) {
+                console.error("Error syncing current user", err)
               }
             }
+          }
 
-            // Broadcast ke seluruh hook yang mendengarkan key ini
-            window.dispatchEvent(new CustomEvent(SYNC_EVENT, { detail: { key } }))
-          }, 0)
-        } catch (error) {
-          console.error(`Error saving key "${key}":`, error)
-        }
-        return nextValue
-      })
+          // Broadcast ke seluruh hook yang mendengarkan key ini
+          window.dispatchEvent(new CustomEvent(SYNC_EVENT, { detail: { key } }))
+        }, 0)
+      } catch (error) {
+        console.error(`Error saving key "${key}":`, error)
+      }
     },
     [key]
   )

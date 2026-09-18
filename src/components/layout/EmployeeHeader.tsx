@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { Moon, Sun, LogOut, Hospital, ChevronDown } from "lucide-react"
-import { useTheme } from "@/contexts/ThemeContext"
+import { useTheme } from "@/hooks/useTheme"
 import { useLocalStorage } from "@/hooks/useLocalStorage"
 import { SEED_EMPLOYEES } from "@/data/seed"
 import { POSISI_OPTIONS } from "@/data/options"

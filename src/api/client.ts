@@ -1,20 +1,33 @@
+import type {
+  Department,
+  ShiftPattern,
+  Employee,
+  Schedule,
+  AttendanceRecord,
+  LeaveRequest,
+  ShiftSwapRequest,
+  AppSettings,
+} from "@/types"
+
 // Konfigurasi URL backend Cloudflare Workers & D1 Database
 export const API_BASE_URL: string =
   (import.meta.env.VITE_API_BASE_URL as string) ||
   "https://rs-meditrack-backend.faisal-artupairt28.workers.dev"
 
+export interface SyncData {
+  departments: Department[]
+  shifts: ShiftPattern[]
+  employees: Employee[]
+  schedules: Schedule[]
+  attendance: AttendanceRecord[]
+  leaves: LeaveRequest[]
+  swaps: ShiftSwapRequest[]
+  app_settings: AppSettings | null
+}
+
 export interface SyncResponse {
   success: boolean
-  data?: {
-    departments: any[]
-    shifts: any[]
-    employees: any[]
-    schedules: any[]
-    attendance: any[]
-    leaves: any[]
-    swaps: any[]
-    app_settings: any
-  }
+  data?: SyncData
   error?: string
 }
 

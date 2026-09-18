@@ -24,6 +24,32 @@ const SortIcon = ({ col, sortKey, sortDir }: { col: SortKey; sortKey: SortKey; s
   return sortDir === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
 }
 
+const ThSort = ({
+  k,
+  label,
+  align = "left",
+  sortKey,
+  sortDir,
+  onToggle,
+}: {
+  k: SortKey
+  label: string
+  align?: string
+  sortKey: SortKey
+  sortDir: SortDir
+  onToggle: (key: SortKey) => void
+}) => (
+  <TableHead
+    className={`cursor-pointer select-none hover:text-gray-900 dark:hover:text-gray-100 transition-colors ${align === "right" ? "text-right" : ""}`}
+    onClick={() => onToggle(k)}
+  >
+    <span className={`inline-flex items-center gap-1 ${align === "right" ? "flex-row-reverse" : ""}`}>
+      {label}
+      <SortIcon col={k} sortKey={sortKey} sortDir={sortDir} />
+    </span>
+  </TableHead>
+)
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 const AttendancePage = () => {
@@ -46,16 +72,29 @@ const AttendancePage = () => {
   const [sortKey,     setSortKey]     = useState<SortKey>("date")
   const [sortDir,     setSortDir]     = useState<SortDir>("desc")
 
+  // Fast lookups
+  const empMap = useMemo(() => new Map(employees.map(e => [e.id, e])), [employees])
+  const deptMap = useMemo(() => new Map(departments.map(d => [d.id, d])), [departments])
+
   // Enrich records
   const enriched = useMemo(() => attendance.map(att => {
-    const emp = employees.find(e => e.id === att.employeeId)
-    const dept = departments.find(d => d.id === emp?.departmentId)
-    return { ...att, empName: emp?.name ?? "—", empNip: emp?.nip ?? "—", deptName: dept?.name ?? "—", departmentId: emp?.departmentId ?? "" }
-  }), [attendance, employees, departments])
+    const emp = empMap.get(att.employeeId)
+    const dept = emp?.departmentId ? deptMap.get(emp.departmentId) : undefined
+    return {
+      ...att,
+      empName: emp?.name ?? "—",
+      empNip:  emp?.nip  ?? "—",
+      deptName:dept?.name ?? "—",
+      departmentId: emp?.departmentId ?? "",
+    }
+  }), [attendance, empMap, deptMap])
 
   const filtered = useMemo(() => {
     let data = enriched
-    if (search)       data = data.filter(r => r.empName.toLowerCase().includes(search.toLowerCase()) || r.empNip.includes(search))
+    if (search) {
+      const q = search.toLowerCase()
+      data = data.filter(r => r.empName.toLowerCase().includes(q) || r.empNip.toLowerCase().includes(q))
+    }
     if (filterDept)   data = data.filter(r => r.departmentId === filterDept)
     if (filterStatus) data = data.filter(r => r.status === filterStatus)
     if (filterFrom)   data = data.filter(r => r.date >= filterFrom)
@@ -76,14 +115,6 @@ const AttendancePage = () => {
     else { setSortKey(key); setSortDir("desc") }
   }
 
-  const ThSort = ({ k, label, align = "left" }: { k: SortKey; label: string; align?: string }) => (
-    <TableHead className={`cursor-pointer select-none hover:text-gray-900 dark:hover:text-gray-100 transition-colors ${align === "right" ? "text-right" : ""}`}
-      onClick={() => toggleSort(k)}>
-      <span className={`inline-flex items-center gap-1 ${align === "right" ? "flex-row-reverse" : ""}`}>
-        {label}<SortIcon col={k} sortKey={sortKey} sortDir={sortDir} />
-      </span>
-    </TableHead>
-  )
 
   // Summary stats
   const total     = filtered.length
@@ -159,13 +190,13 @@ const AttendancePage = () => {
           <Table className="min-w-[640px]">
           <TableHeader>
             <TableRow className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/60">
-              <ThSort k="date"        label="Tanggal" />
-              <ThSort k="name"        label="Pegawai" />
+              <ThSort k="date"        label="Tanggal"   sortKey={sortKey} sortDir={sortDir} onToggle={toggleSort} />
+              <ThSort k="name"        label="Pegawai"   sortKey={sortKey} sortDir={sortDir} onToggle={toggleSort} />
               <TableHead className="hidden md:table-cell">Departemen</TableHead>
-              <ThSort k="clockInTime" label="Jam Masuk" />
+              <ThSort k="clockInTime" label="Jam Masuk" sortKey={sortKey} sortDir={sortDir} onToggle={toggleSort} />
               <TableHead className="hidden sm:table-cell">Jam Keluar</TableHead>
-              <ThSort k="totalHours"  label="Durasi" align="right" />
-              <ThSort k="status"      label="Status" />
+              <ThSort k="totalHours"  label="Durasi"    sortKey={sortKey} sortDir={sortDir} onToggle={toggleSort} align="right" />
+              <ThSort k="status"      label="Status"    sortKey={sortKey} sortDir={sortDir} onToggle={toggleSort} />
               <TableHead className="hidden sm:table-cell">Lokasi</TableHead>
             </TableRow>
           </TableHeader>

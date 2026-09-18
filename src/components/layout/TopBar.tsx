@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
 import { Bell, Moon, Sun, User, ChevronDown, LogOut, Settings, CheckCheck, Menu } from "lucide-react"
-import { useTheme } from "@/contexts/ThemeContext"
+import { useTheme } from "@/hooks/useTheme"
 import { useLocalStorage } from "@/hooks/useLocalStorage"
 import { SEED_EMPLOYEES, SEED_LEAVES, SEED_SWAPS } from "@/data/seed"
 import { POSISI_OPTIONS } from "@/data/options"

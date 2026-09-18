@@ -125,7 +125,7 @@ export const SupervisorSidebar = ({ mobileOpen = false, onMobileClose }: Supervi
         setSeenSwapIds(allSeen)
       }
     }
-  }, [pathname, pendingSwapsList, seenSwapIds])
+  }, [pathname, pendingSwapsList, seenSwapIds, setSeenSwapIds])
 
   // Mark leaves as seen when user visits /supervisor/leaves
   useEffect(() => {
@@ -136,7 +136,7 @@ export const SupervisorSidebar = ({ mobileOpen = false, onMobileClose }: Supervi
         setSeenLeaveIds(allSeen)
       }
     }
-  }, [pathname, pendingLeavesList, seenLeaveIds])
+  }, [pathname, pendingLeavesList, seenLeaveIds, setSeenLeaveIds])
 
   // Unseen pending counts (0 if user is currently on that page or has seen all of them)
   const unreadSwapsCount = pathname === "/supervisor/swaps"

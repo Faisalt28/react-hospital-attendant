@@ -16,7 +16,7 @@ import {
   Users,
   CheckCircle2,
 } from "lucide-react"
-import { useTheme } from "@/contexts/ThemeContext"
+import { useTheme } from "@/hooks/useTheme"
 import { About3 } from "@/components/ui/about-3"
 import { Button } from "@/components/ui/button"
 

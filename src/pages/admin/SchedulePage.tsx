@@ -46,17 +46,27 @@ const SchedulePage = () => {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
   })
 
-  const getEmp   = (id: string) => employees.find(e => e.id === id)
-  const getDept  = (id: string) => departments.find(d => d.id === id)
-  const getShift = (id: string) => shifts.find(s => s.id === id)
-
   // Enrich records
-  const enriched = useMemo(() => schedules.map(sch => {
-    const emp   = getEmp(sch.employeeId)
-    const dept  = getDept(sch.departmentId)
-    const shift = getShift(sch.shiftId)
-    return { ...sch, empName: emp?.name ?? "—", empNip: emp?.nip ?? "—", deptName: dept?.name ?? "—", shift }
-  }), [schedules, employees, departments, shifts])
+  const enriched = useMemo(() => {
+    const empMap = new Map(employees.map(e => [e.id, e]))
+    const deptMap = new Map(departments.map(d => [d.id, d]))
+    const shiftMap = new Map(shifts.map(s => [s.id, s]))
+
+    return schedules.map(sch => {
+      const emp     = empMap.get(sch.employeeId)
+      const dept    = deptMap.get(sch.departmentId)
+      const shift   = shiftMap.get(sch.shiftId)
+      const creator = empMap.get(sch.createdBy)
+      return {
+        ...sch,
+        empName: emp?.name ?? "—",
+        empNip: emp?.nip ?? "—",
+        deptName: dept?.name ?? "—",
+        creatorName: creator?.name ?? "—",
+        shift,
+      }
+    })
+  }, [schedules, employees, departments, shifts])
 
   const filtered = useMemo(() => {
     let data = enriched
@@ -171,7 +181,6 @@ const SchedulePage = () => {
             ) : filtered.map(rec => {
               const statusCfg = STATUS_CFG[rec.status as ScheduleStatus]
               const shiftColor = SHIFT_COLORS[rec.shift?.color ?? "blue"]
-              const creator = getEmp(rec.createdBy)
               return (
                 <TableRow key={rec.id}>
                   <TableCell className="font-medium text-gray-900 dark:text-gray-100">
@@ -199,7 +208,7 @@ const SchedulePage = () => {
                       {statusCfg.label}
                     </span>
                   </TableCell>
-                  <TableCell className="text-xs text-gray-400">{creator?.name ?? "—"}</TableCell>
+                  <TableCell className="text-xs text-gray-400">{rec.creatorName}</TableCell>
                 </TableRow>
               )
             })}

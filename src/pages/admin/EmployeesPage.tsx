@@ -62,6 +62,26 @@ const Avatar = ({ name }: { name: string }) => {
 
 // ─── Credential Dialog (shown after Add) ─────────────────────────────────────
 
+const CopyBtn = ({
+  text,
+  type,
+  copied,
+  onCopy,
+}: {
+  text: string
+  type: "nip" | "pass"
+  copied: "nip" | "pass" | null
+  onCopy: (text: string, type: "nip" | "pass") => void
+}) => (
+  <button
+    type="button"
+    onClick={() => onCopy(text, type)}
+    className="ml-2 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+  >
+    {copied === type ? <CheckCheck className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
+  </button>
+)
+
 const CredentialDialog = ({ nip, name, onClose }: { nip: string; name: string; onClose: () => void }) => {
   const [copied, setCopied] = useState<"nip" | "pass" | null>(null)
 
@@ -71,13 +91,6 @@ const CredentialDialog = ({ nip, name, onClose }: { nip: string; name: string; o
       setTimeout(() => setCopied(null), 2000)
     })
   }
-
-  const CopyBtn = ({ text, type }: { text: string; type: "nip" | "pass" }) => (
-    <button onClick={() => copy(text, type)}
-      className="ml-2 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
-      {copied === type ? <CheckCheck className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
-    </button>
-  )
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -100,14 +113,14 @@ const CredentialDialog = ({ nip, name, onClose }: { nip: string; name: string; o
               <p className="text-xs text-gray-400 mb-0.5">NIP (untuk login)</p>
               <p className="font-mono font-semibold text-gray-900 dark:text-gray-100">{nip}</p>
             </div>
-            <CopyBtn text={nip} type="nip" />
+            <CopyBtn text={nip} type="nip" copied={copied} onCopy={copy} />
           </div>
           <div className="flex items-center justify-between px-4 py-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-700">
             <div>
               <p className="text-xs text-amber-600 dark:text-amber-400 mb-0.5">Password Default</p>
               <p className="font-mono font-semibold text-amber-800 dark:text-amber-300">{DEFAULT_PASSWORD}</p>
             </div>
-            <CopyBtn text={DEFAULT_PASSWORD} type="pass" />
+            <CopyBtn text={DEFAULT_PASSWORD} type="pass" copied={copied} onCopy={copy} />
           </div>
         </div>
 

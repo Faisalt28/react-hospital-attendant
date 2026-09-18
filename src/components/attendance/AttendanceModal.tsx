@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import {
   Camera, MapPin, CheckCircle2, AlertCircle, X, RefreshCw,
   ShieldCheck, ShieldAlert, Clock, Sparkles
@@ -35,7 +35,7 @@ export const AttendanceModal = ({
 
   // Camera state
   const videoRef = useRef<HTMLVideoElement | null>(null)
-  const [stream, setStream] = useState<MediaStream | null>(null)
+  const streamRef = useRef<MediaStream | null>(null)
   const [photo, setPhoto] = useState<string | null>(null)
   const [cameraError, setCameraError] = useState<string>("")
   const [cameraLoading, setCameraLoading] = useState<boolean>(true)
@@ -60,57 +60,39 @@ export const AttendanceModal = ({
     return () => clearInterval(timer)
   }, [])
 
-  // Start Camera & GPS when modal opens
-  useEffect(() => {
-    if (!isOpen) {
-      stopCamera()
-      return
+  const stopCamera = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop())
+      streamRef.current = null
     }
+  }, [])
 
-    setPhoto(null)
-    setSubmitSuccess(false)
-    startCamera()
-    getGpsLocation()
-
-    return () => {
-      stopCamera()
-    }
-  }, [isOpen])
-
-  const startCamera = async () => {
-    setCameraLoading(true)
-    setCameraError("")
+  const startCamera = useCallback(async () => {
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
         audio: false,
       })
-      setStream(mediaStream)
+      streamRef.current = mediaStream
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream
       }
+      setCameraError("")
       setCameraLoading(false)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.warn("Camera access failed or unavailable:", err)
       setCameraError("Kamera tidak dapat diakses atau izin ditolak. Menggunakan simulasi kamera.")
       setCameraLoading(false)
     }
-  }
+  }, [])
 
-  const stopCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach((track) => track.stop())
-      setStream(null)
-    }
-  }
-
-  const getGpsLocation = () => {
-    setGpsLoading(true)
-
+  const getGpsLocation = useCallback(() => {
     if (!navigator.geolocation) {
       // Fallback simulasi lokasi dalam radius RS
-      setDistance(15)
-      setGpsLoading(false)
+      setTimeout(() => {
+        setDistance(15)
+        setGpsLoading(false)
+      }, 0)
       return
     }
 
@@ -130,7 +112,52 @@ export const AttendanceModal = ({
       },
       { enableHighAccuracy: settings.requireHighAccuracyGps, timeout: 8000 }
     )
-  }
+  }, [settings.latitude, settings.longitude, settings.requireHighAccuracyGps])
+
+  // Start Camera & GPS when modal opens
+  useEffect(() => {
+    if (!isOpen) {
+      stopCamera()
+      return
+    }
+
+    let isMounted = true
+
+    navigator.mediaDevices?.getUserMedia({
+      video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
+      audio: false,
+    }).then((mediaStream) => {
+      if (!isMounted) {
+        mediaStream.getTracks().forEach((track) => track.stop())
+        return
+      }
+      streamRef.current = mediaStream
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream
+      }
+      setCameraError("")
+      setCameraLoading(false)
+    }).catch((err) => {
+      if (!isMounted) return
+      console.warn("Camera access failed or unavailable:", err)
+      setCameraError("Kamera tidak dapat diakses atau izin ditolak. Menggunakan simulasi kamera.")
+      setCameraLoading(false)
+    })
+
+    getGpsLocation()
+
+    return () => {
+      isMounted = false
+      stopCamera()
+    }
+  }, [isOpen, getGpsLocation, stopCamera])
+
+  const handleClose = useCallback(() => {
+    stopCamera()
+    setPhoto(null)
+    setSubmitSuccess(false)
+    onClose()
+  }, [stopCamera, onClose])
 
   // Capture Photo
   const handleCapture = () => {
@@ -169,6 +196,8 @@ export const AttendanceModal = ({
 
   const handleRetake = () => {
     setPhoto(null)
+    setCameraLoading(true)
+    setCameraError("")
     startCamera()
   }
 
@@ -241,7 +270,7 @@ export const AttendanceModal = ({
       if (onSuccess) onSuccess()
 
       setTimeout(() => {
-        onClose()
+        handleClose()
       }, 1500)
     }, 800)
   }
@@ -250,7 +279,7 @@ export const AttendanceModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-xs" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-xs" onClick={handleClose} />
 
       <div className="relative bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-lg border border-gray-200 dark:border-gray-800 overflow-hidden flex flex-col max-h-[96vh] sm:max-h-[92vh]">
         {/* Header */}
@@ -269,7 +298,7 @@ export const AttendanceModal = ({
             </div>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="p-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-600 transition-colors shrink-0"
           >
             <X className="h-5 w-5" />
@@ -408,7 +437,7 @@ export const AttendanceModal = ({
           <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex gap-2.5 sm:gap-3 shrink-0">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleClose}
               className="flex-1 py-2.5 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-xl transition-colors"
             >
               Batal

@@ -44,7 +44,9 @@ export const SupervisorDashboard = () => {
   }, [])
 
   // Live GPS Distance
-  const [distance, setDistance] = useState<number | null>(null)
+  const [distance, setDistance] = useState<number | null>(() =>
+    typeof navigator !== "undefined" && !("geolocation" in navigator) ? 42 : null
+  )
   useEffect(() => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
@@ -63,8 +65,6 @@ export const SupervisorDashboard = () => {
         },
         { enableHighAccuracy: true, timeout: 5000 }
       )
-    } else {
-      setDistance(42)
     }
   }, [settings])
 

@@ -124,15 +124,21 @@ const LeavePage = () => {
   const [filterStatus, setFilterStatus] = useState("")
   const [selected,     setSelected]     = useState<LeaveRequest | null>(null)
 
-  const getEmp  = (id: string) => employees.find(e => e.id === id)
-  const getDept = (id: string) => departments.find(d => d.id === id)
+  const enriched = useMemo(() => {
+    const empMap = new Map(employees.map(e => [e.id, e]))
+    const deptMap = new Map(departments.map(d => [d.id, d]))
 
-  const enriched = useMemo(() => leaves.map(l => ({
-    ...l,
-    empName:  getEmp(l.employeeId)?.name ?? "—",
-    empNip:   getEmp(l.employeeId)?.nip ?? "—",
-    deptName: getDept(l.departmentId)?.name ?? "—",
-  })), [leaves, employees, departments])
+    return leaves.map(l => {
+      const emp = empMap.get(l.employeeId)
+      const dept = deptMap.get(l.departmentId)
+      return {
+        ...l,
+        empName: emp?.name ?? "—",
+        empNip: emp?.nip ?? "—",
+        deptName: dept?.name ?? "—",
+      }
+    })
+  }, [leaves, employees, departments])
 
   const filtered = useMemo(() => {
     let data = enriched
