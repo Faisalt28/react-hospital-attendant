@@ -44,12 +44,7 @@ export const SupervisorRosterPage = () => {
 
   // Custom Pattern Modal state
   const [isPatternModalOpen, setIsPatternModalOpen] = useState(false)
-  const [customPattern, setCustomPattern] = useState<string[]>([
-    "shift-1", // Pagi
-    "shift-2", // Siang
-    "shift-3", // Malam
-    "OFF",     // Libur
-  ])
+  const [customPattern, setCustomPattern] = useState<string[]>([])
   const [applyScope, setApplyScope] = useState<"all" | "selected">("all")
   const [selectedTargetStaff, setSelectedTargetStaff] = useState<string[]>([])
   const [isStaggered, setIsStaggered] = useState(true)
@@ -225,18 +220,6 @@ export const SupervisorRosterPage = () => {
     }, 4000)
   }
 
-  // Presets for Custom Pattern
-  const applyPreset = (presetType: "standard" | "dense" | "light" | "custom_off") => {
-    if (presetType === "standard") {
-      setCustomPattern(["shift-1", "shift-2", "shift-3", "OFF"])
-    } else if (presetType === "dense") {
-      setCustomPattern(["shift-1", "shift-1", "shift-2", "shift-2", "shift-3", "OFF", "OFF"])
-    } else if (presetType === "light") {
-      setCustomPattern(["shift-1", "shift-2", "OFF"])
-    } else if (presetType === "custom_off") {
-      setCustomPattern(["shift-1", "shift-1", "shift-1", "OFF", "OFF"])
-    }
-  }
 
   // Navigation handlers
   const handlePrevMonth = () => {
@@ -535,43 +518,6 @@ export const SupervisorRosterPage = () => {
               >
                 <X className="w-5 h-5" />
               </button>
-            </div>
-
-            {/* Template Presets */}
-            <div className="space-y-2">
-              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300">
-                Pilihan Cepat Pola (Presets):
-              </label>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => applyPreset("standard")}
-                  className="px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-gray-50 dark:bg-gray-800 hover:bg-indigo-50 dark:hover:bg-indigo-950 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 transition-colors cursor-pointer"
-                >
-                  P - S - M - OFF (4 Hari)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => applyPreset("dense")}
-                  className="px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-gray-50 dark:bg-gray-800 hover:bg-indigo-50 dark:hover:bg-indigo-950 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 transition-colors cursor-pointer"
-                >
-                  2P - 2S - 1M - 2OFF (7 Hari)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => applyPreset("light")}
-                  className="px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-gray-50 dark:bg-gray-800 hover:bg-indigo-50 dark:hover:bg-indigo-950 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 transition-colors cursor-pointer"
-                >
-                  P - S - OFF (3 Hari)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => applyPreset("custom_off")}
-                  className="px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-gray-50 dark:bg-gray-800 hover:bg-indigo-50 dark:hover:bg-indigo-950 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 transition-colors cursor-pointer"
-                >
-                  3P - 2OFF (5 Hari)
-                </button>
-              </div>
             </div>
 
             {/* Current Pattern Sequence */}

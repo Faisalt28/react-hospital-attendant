@@ -98,12 +98,87 @@ const SignIn = ({ onSignIn, isLoading, error }: SignInProps) => {
               </div>
             </div>
 
-            {/* Default password hint */}
-            <div className="flex items-center gap-2 px-3 py-2.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-xl">
-              <span className="text-amber-500 text-sm">💡</span>
-              <p className="text-xs text-amber-700 dark:text-amber-400">
-                Login pertama kali? Password default Anda adalah <strong>RS-2026</strong>
-              </p>
+            {/* Role Login Info & Quick Fill */}
+            <div className="p-3.5 bg-slate-50 dark:bg-gray-800/80 border border-slate-200 dark:border-gray-700 rounded-2xl space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400">
+                  Info Login Masing-Masing Peran:
+                </span>
+                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                  Klik untuk autofill
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 gap-2 text-xs">
+                {/* Admin */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNip("HRD-2020-001")
+                    setPassword("test123")
+                  }}
+                  className="w-full text-left p-2.5 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-950/30 transition-all cursor-pointer group"
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-bold text-gray-800 dark:text-gray-200 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                      👑 Admin:
+                    </span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 font-medium">
+                      Pilih
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-gray-600 dark:text-gray-300 space-y-0.5 font-mono">
+                    <div>NIP: <span className="font-semibold text-gray-900 dark:text-gray-100">HRD-2020-001</span></div>
+                    <div>Password: <span className="font-semibold text-gray-900 dark:text-gray-100">test123</span></div>
+                  </div>
+                </button>
+
+                {/* Supervisor */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNip("IGD-2020-001")
+                    setPassword("test123")
+                  }}
+                  className="w-full text-left p-2.5 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 hover:border-purple-400 dark:hover:border-purple-500 hover:bg-purple-50/50 dark:hover:bg-purple-950/30 transition-all cursor-pointer group"
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-bold text-gray-800 dark:text-gray-200 group-hover:text-purple-600 dark:group-hover:text-purple-400">
+                      🩺 Supervisor:
+                    </span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 font-medium">
+                      Pilih
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-gray-600 dark:text-gray-300 space-y-0.5 font-mono">
+                    <div>NIP: <span className="font-semibold text-gray-900 dark:text-gray-100">IGD-2020-001</span></div>
+                    <div>Password: <span className="font-semibold text-gray-900 dark:text-gray-100">test123</span></div>
+                  </div>
+                </button>
+
+                {/* User / Pegawai */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNip("IGD-2020-002")
+                    setPassword("test123")
+                  }}
+                  className="w-full text-left p-2.5 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 hover:border-emerald-400 dark:hover:border-emerald-500 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30 transition-all cursor-pointer group"
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-bold text-gray-800 dark:text-gray-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
+                      👤 User:
+                    </span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 font-medium">
+                      Pilih
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-gray-600 dark:text-gray-300 space-y-0.5 font-mono">
+                    <div>NIP: <span className="font-semibold text-gray-900 dark:text-gray-100">IGD-2020-002</span></div>
+                    <div>Password: <span className="font-semibold text-gray-900 dark:text-gray-100">test123</span></div>
+                  </div>
+                </button>
+              </div>
             </div>
 
             {/* Submit */}

@@ -8,21 +8,23 @@ import type {
   Schedule,
 } from "@/types"
 
-// ─── 1. Departemen Default (Hanya HRD & Personalia) ──────────────────────────
+// ─── 1. Departemen Rumah Sakit (HRD + 6 Departemen = 7 Departemen) ─────────
 export const SEED_DEPARTMENTS: Department[] = [
   { id: "dept-hrd", name: "HRD & Personalia", supervisorId: "emp-1" },
+  { id: "dept-igd", name: "IGD (Instalasi Gawat Darurat)", supervisorId: "emp-igd-1" },
+  { id: "dept-icu", name: "ICU (Intensive Care Unit)", supervisorId: "emp-icu-1" },
+  { id: "dept-rwi", name: "Instalasi Rawat Inap", supervisorId: "emp-rwi-1" },
+  { id: "dept-far", name: "Instalasi Farmasi", supervisorId: "emp-far-1" },
+  { id: "dept-lab", name: "Laboratorium Klinik", supervisorId: "emp-lab-1" },
+  { id: "dept-rad", name: "Instalasi Radiologi", supervisorId: "emp-rad-1" },
 ]
 
-// ─── 2. Pola Sif Dasar ───────────────────────────────────────────────────────
-export const SEED_SHIFTS: ShiftPattern[] = [
-  { id: "shift-1", name: "Shift Pagi",  startTime: "07:00", endTime: "15:00", color: "blue",   durationHours: 8,  isOvernight: false },
-  { id: "shift-2", name: "Shift Siang", startTime: "14:00", endTime: "22:00", color: "orange", durationHours: 8,  isOvernight: false },
-  { id: "shift-3", name: "Shift Malam", startTime: "21:00", endTime: "07:00", color: "indigo", durationHours: 10, isOvernight: true  },
-  { id: "shift-4", name: "On-Call",     startTime: "00:00", endTime: "00:00", color: "green",  durationHours: 0,  isOvernight: false },
-]
+// ─── 2. Pola Sif (Kosong - Dibuat oleh Supervisor masing-masing) ─────────────
+export const SEED_SHIFTS: ShiftPattern[] = []
 
-// ─── 3. Akun Admin HRD Default (Satu-satunya Akun Awal) ──────────────────────
+// ─── 3. Akun Pegawai (Masing-masing Departemen 5 Orang, Total 35 Orang) ─────
 export const SEED_EMPLOYEES: Employee[] = [
+  // ── HRD & PERSONALIA ──
   {
     id: "emp-1",
     nip: "HRD-2020-001",
@@ -37,9 +39,119 @@ export const SEED_EMPLOYEES: Employee[] = [
     phone: "081234567890",
     joinDate: "2026-01-01",
     isActive: true,
-    password: "RS-2026",
-    isFirstLogin: true,
+    password: "test123",
+    isFirstLogin: false,
   },
+  {
+    id: "emp-hrd-2",
+    nip: "HRD-2020-002",
+    name: "Maya Anggraini, S.Psi",
+    email: "maya.anggraini@rsmeditrack.com",
+    posisi: "staf_hrd",
+    jabatan: "staf_senior",
+    departmentId: "dept-hrd",
+    role: "employee",
+    annualLeaveQuota: 12,
+    usedLeave: 0,
+    phone: "081234567891",
+    joinDate: "2026-01-01",
+    isActive: true,
+    password: "test123",
+    isFirstLogin: false,
+  },
+  {
+    id: "emp-hrd-3",
+    nip: "HRD-2020-003",
+    name: "Dimas Wicaksono, S.M",
+    email: "dimas.wicaksono@rsmeditrack.com",
+    posisi: "staf_hrd",
+    jabatan: "staf_senior",
+    departmentId: "dept-hrd",
+    role: "employee",
+    annualLeaveQuota: 12,
+    usedLeave: 0,
+    phone: "081234567892",
+    joinDate: "2026-01-01",
+    isActive: true,
+    password: "test123",
+    isFirstLogin: false,
+  },
+  {
+    id: "emp-hrd-4",
+    nip: "HRD-2020-004",
+    name: "Rina Anggraini, S.Kom",
+    email: "rina.anggraini@rsmeditrack.com",
+    posisi: "staf_hrd",
+    jabatan: "staf_junior",
+    departmentId: "dept-hrd",
+    role: "employee",
+    annualLeaveQuota: 12,
+    usedLeave: 0,
+    phone: "081234567893",
+    joinDate: "2026-01-01",
+    isActive: true,
+    password: "test123",
+    isFirstLogin: false,
+  },
+  {
+    id: "emp-hrd-5",
+    nip: "HRD-2020-005",
+    name: "Surya Pratama, A.Md",
+    email: "surya.pratama@rsmeditrack.com",
+    posisi: "staf_hrd",
+    jabatan: "staf_junior",
+    departmentId: "dept-hrd",
+    role: "employee",
+    annualLeaveQuota: 12,
+    usedLeave: 0,
+    phone: "081234567894",
+    joinDate: "2026-01-01",
+    isActive: true,
+    password: "test123",
+    isFirstLogin: false,
+  },
+
+  // ── IGD ──
+  { id: "emp-igd-1", nip: "IGD-2020-001", name: "dr. Hendra Pratama, Sp.EM", email: "hendra.pratama@rsmeditrack.com", posisi: "dokter_spesialis", jabatan: "supervisor", departmentId: "dept-igd", role: "supervisor", annualLeaveQuota: 12, usedLeave: 0, phone: "081211110001", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+  { id: "emp-igd-2", nip: "IGD-2020-002", name: "Ns. Siti Nurhaliza, S.Kep", email: "siti.nurhaliza@rsmeditrack.com", posisi: "perawat", jabatan: "staf_senior", departmentId: "dept-igd", role: "employee", annualLeaveQuota: 12, usedLeave: 0, phone: "081211110002", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+  { id: "emp-igd-3", nip: "IGD-2020-003", name: "Ns. Bambang Wijaya, S.Kep", email: "bambang.wijaya@rsmeditrack.com", posisi: "perawat", jabatan: "staf_senior", departmentId: "dept-igd", role: "employee", annualLeaveQuota: 12, usedLeave: 0, phone: "081211110003", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+  { id: "emp-igd-4", nip: "IGD-2020-004", name: "Ahmad Fauzi, A.Md.Kep", email: "ahmad.fauzi@rsmeditrack.com", posisi: "perawat", jabatan: "staf_junior", departmentId: "dept-igd", role: "employee", annualLeaveQuota: 12, usedLeave: 0, phone: "081211110004", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+  { id: "emp-igd-5", nip: "IGD-2020-005", name: "Dewi Anggraini, A.Md.Kep", email: "dewi.anggraini@rsmeditrack.com", posisi: "perawat", jabatan: "staf_junior", departmentId: "dept-igd", role: "employee", annualLeaveQuota: 12, usedLeave: 0, phone: "081211110005", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+
+  // ── ICU ──
+  { id: "emp-icu-1", nip: "ICU-2020-001", name: "dr. Rina Kurniasih, Sp.An", email: "rina.kurniasih@rsmeditrack.com", posisi: "dokter_spesialis", jabatan: "supervisor", departmentId: "dept-icu", role: "supervisor", annualLeaveQuota: 12, usedLeave: 0, phone: "081222220001", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+  { id: "emp-icu-2", nip: "ICU-2020-002", name: "Ns. Tri Wahyuni, S.Kep", email: "tri.wahyuni@rsmeditrack.com", posisi: "perawat", jabatan: "staf_senior", departmentId: "dept-icu", role: "employee", annualLeaveQuota: 12, usedLeave: 0, phone: "081222220002", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+  { id: "emp-icu-3", nip: "ICU-2020-003", name: "Ns. Doni Prasetyo, S.Kep", email: "doni.prasetyo@rsmeditrack.com", posisi: "perawat", jabatan: "staf_senior", departmentId: "dept-icu", role: "employee", annualLeaveQuota: 12, usedLeave: 0, phone: "081222220003", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+  { id: "emp-icu-4", nip: "ICU-2020-004", name: "Riska Handayani, A.Md.Kep", email: "riska.handayani@rsmeditrack.com", posisi: "perawat", jabatan: "staf_junior", departmentId: "dept-icu", role: "employee", annualLeaveQuota: 12, usedLeave: 0, phone: "081222220004", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+  { id: "emp-icu-5", nip: "ICU-2020-005", name: "Faisal Akbar, A.Md.Kep", email: "faisal.akbar@rsmeditrack.com", posisi: "perawat", jabatan: "staf_junior", departmentId: "dept-icu", role: "employee", annualLeaveQuota: 12, usedLeave: 0, phone: "081222220005", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+
+  // ── Rawat Inap ──
+  { id: "emp-rwi-1", nip: "RWI-2020-001", name: "Ns. Maya Safitri, S.Kep", email: "maya.safitri@rsmeditrack.com", posisi: "perawat", jabatan: "supervisor", departmentId: "dept-rwi", role: "supervisor", annualLeaveQuota: 12, usedLeave: 0, phone: "081233330001", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+  { id: "emp-rwi-2", nip: "RWI-2020-002", name: "Ns. Dian Permatasari, S.Kep", email: "dian.permatasari@rsmeditrack.com", posisi: "perawat", jabatan: "staf_senior", departmentId: "dept-rwi", role: "employee", annualLeaveQuota: 12, usedLeave: 0, phone: "081233330002", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+  { id: "emp-rwi-3", nip: "RWI-2020-003", name: "Ns. Arif Gunawan, S.Kep", email: "arif.gunawan@rsmeditrack.com", posisi: "perawat", jabatan: "staf_senior", departmentId: "dept-rwi", role: "employee", annualLeaveQuota: 12, usedLeave: 0, phone: "081233330003", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+  { id: "emp-rwi-4", nip: "RWI-2020-004", name: "Fitriani, A.Md.Kep", email: "fitriani@rsmeditrack.com", posisi: "perawat", jabatan: "staf_junior", departmentId: "dept-rwi", role: "employee", annualLeaveQuota: 12, usedLeave: 0, phone: "081233330004", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+  { id: "emp-rwi-5", nip: "RWI-2020-005", name: "Bagus Setiawan, A.Md.Kep", email: "bagus.setiawan@rsmeditrack.com", posisi: "perawat", jabatan: "staf_junior", departmentId: "dept-rwi", role: "employee", annualLeaveQuota: 12, usedLeave: 0, phone: "081233330005", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+
+  // ── Farmasi ──
+  { id: "emp-far-1", nip: "FAR-2020-001", name: "apt. Budi Santoso, S.Farm", email: "budi.santoso@rsmeditrack.com", posisi: "apoteker", jabatan: "supervisor", departmentId: "dept-far", role: "supervisor", annualLeaveQuota: 12, usedLeave: 0, phone: "081244440001", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+  { id: "emp-far-2", nip: "FAR-2020-002", name: "apt. Indah Puspita, S.Farm", email: "indah.puspita@rsmeditrack.com", posisi: "apoteker", jabatan: "staf_senior", departmentId: "dept-far", role: "employee", annualLeaveQuota: 12, usedLeave: 0, phone: "081244440002", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+  { id: "emp-far-3", nip: "FAR-2020-003", name: "Reza Pahlevi, A.Md.Farm", email: "reza.pahlevi@rsmeditrack.com", posisi: "apoteker", jabatan: "staf_senior", departmentId: "dept-far", role: "employee", annualLeaveQuota: 12, usedLeave: 0, phone: "081244440003", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+  { id: "emp-far-4", nip: "FAR-2020-004", name: "Nur Aini, A.Md.Farm", email: "nur.aini@rsmeditrack.com", posisi: "apoteker", jabatan: "staf_junior", departmentId: "dept-far", role: "employee", annualLeaveQuota: 12, usedLeave: 0, phone: "081244440004", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+  { id: "emp-far-5", nip: "FAR-2020-005", name: "Ilham Ramadhan, A.Md.Farm", email: "ilham.ramadhan@rsmeditrack.com", posisi: "apoteker", jabatan: "staf_junior", departmentId: "dept-far", role: "employee", annualLeaveQuota: 12, usedLeave: 0, phone: "081244440005", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+
+  // ── Laboratorium ──
+  { id: "emp-lab-1", nip: "LAB-2020-001", name: "dr. Eko Prasetyo, Sp.PK", email: "eko.prasetyo@rsmeditrack.com", posisi: "dokter_spesialis", jabatan: "supervisor", departmentId: "dept-lab", role: "supervisor", annualLeaveQuota: 12, usedLeave: 0, phone: "081255550001", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+  { id: "emp-lab-2", nip: "LAB-2020-002", name: "Agus Supriyadi, A.Md.AK", email: "agus.supriyadi@rsmeditrack.com", posisi: "analis_lab", jabatan: "staf_senior", departmentId: "dept-lab", role: "employee", annualLeaveQuota: 12, usedLeave: 0, phone: "081255550002", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+  { id: "emp-lab-3", nip: "LAB-2020-003", name: "Ratna Sari, A.Md.AK", email: "ratna.sari@rsmeditrack.com", posisi: "analis_lab", jabatan: "staf_senior", departmentId: "dept-lab", role: "employee", annualLeaveQuota: 12, usedLeave: 0, phone: "081255550003", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+  { id: "emp-lab-4", nip: "LAB-2020-004", name: "Putri Lestari, A.Md.AK", email: "putri.lestari@rsmeditrack.com", posisi: "analis_lab", jabatan: "staf_junior", departmentId: "dept-lab", role: "employee", annualLeaveQuota: 12, usedLeave: 0, phone: "081255550004", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+  { id: "emp-lab-5", nip: "LAB-2020-005", name: "Dedi Kurniawan, A.Md.AK", email: "dedi.kurniawan@rsmeditrack.com", posisi: "analis_lab", jabatan: "staf_junior", departmentId: "dept-lab", role: "employee", annualLeaveQuota: 12, usedLeave: 0, phone: "081255550005", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+
+  // ── Radiologi ──
+  { id: "emp-rad-1", nip: "RAD-2020-001", name: "dr. Lukman Hakim, Sp.Rad", email: "lukman.hakim@rsmeditrack.com", posisi: "dokter_spesialis", jabatan: "supervisor", departmentId: "dept-rad", role: "supervisor", annualLeaveQuota: 12, usedLeave: 0, phone: "081266660001", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+  { id: "emp-rad-2", nip: "RAD-2020-002", name: "Haryanto, S.Tr.Rad", email: "haryanto@rsmeditrack.com", posisi: "radiografer", jabatan: "staf_senior", departmentId: "dept-rad", role: "employee", annualLeaveQuota: 12, usedLeave: 0, phone: "081266660002", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+  { id: "emp-rad-3", nip: "RAD-2020-003", name: "Wulan Dari, A.Md.Rad", email: "wulan.dari@rsmeditrack.com", posisi: "radiografer", jabatan: "staf_senior", departmentId: "dept-rad", role: "employee", annualLeaveQuota: 12, usedLeave: 0, phone: "081266660003", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+  { id: "emp-rad-4", nip: "RAD-2020-004", name: "Rian Hidayat, A.Md.Rad", email: "rian.hidayat@rsmeditrack.com", posisi: "radiografer", jabatan: "staf_junior", departmentId: "dept-rad", role: "employee", annualLeaveQuota: 12, usedLeave: 0, phone: "081266660004", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
+  { id: "emp-rad-5", nip: "RAD-2020-005", name: "Nadia Utami, A.Md.Rad", email: "nadia.utami@rsmeditrack.com", posisi: "radiografer", jabatan: "staf_junior", departmentId: "dept-rad", role: "employee", annualLeaveQuota: 12, usedLeave: 0, phone: "081266660005", joinDate: "2026-01-01", isActive: true, password: "test123", isFirstLogin: false },
 ]
 
 // ─── 4. Data Operasional Kosong (Bersih — Dikelola Live via Cloudflare D1) ───
